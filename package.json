@@ -1,0 +1,28 @@
+{
+  "name": "my_screep",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "push": "rollup -cw --bundleConfigAsCjs --environment DEST:main",
+    "local": "rollup -cw --bundleConfigAsCjs --environment  DEST:local",
+    "build": "rollup -cw --bundleConfigAsCjs",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^24.1.0",
+    "@rollup/plugin-node-resolve": "^15.0.2",
+    "@types/lodash": "^3.10.1",
+    "@types/screeps": "^3.3.2",
+    "rollup": "^3.20.6",
+    "rollup-plugin-clear": "^2.0.7",
+    "rollup-plugin-copy": "^3.4.0",
+    "rollup-plugin-screeps": "^1.0.1"
+  },
+  "dependencies": {
+    "source-map": "^0.6.1"
+  }
+}
