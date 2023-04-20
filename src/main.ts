@@ -2,9 +2,25 @@
 import { errorMapper } from './modules/errorMapper'
 import { sayHello } from './modules/utils'
 
+import { roleHarvester } from './role/role.harvester'
+import { roleUpgrader } from './role/role.upgrader'
+import { roleBuilder } from './role/role.builder'
 
 // 游戏入口函数
 export const loop = errorMapper(() => {
-    sayHello()
+    for(var name in Game.creeps) {
+        var creep = Game.creeps[name];
+        if(creep.memory.role == 'harvester') {
+            roleHarvester.run(creep);
+        }
+        if(creep.memory.role == 'upgrader') {
+            roleUpgrader.run(creep);
+        }
+        if(creep.memory.role == 'builder') {
+            roleBuilder.run(creep);
+        }
+    }
 })
+
+
 
