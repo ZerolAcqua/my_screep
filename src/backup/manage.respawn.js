@@ -33,7 +33,7 @@ run: function() {
             console.log('Trying to spawn new harvester: ' + newName);
             Game.spawns['Spawn1'].spawnCreep([WORK,
                                             CARRY,
-                                            MOVE], newName, 
+                                            MOVE,MOVE], newName, 
                 {memory: {role: 'harvester'}});
         }
         // harvester respawn

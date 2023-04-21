@@ -5,7 +5,7 @@ import { roleUpgrader } from './role.upgrader'
 */
 export const roleBuilder = {
     /** @param {Creep} creep **/
-    run: function (creep,resourceId=0) {
+    run: function (creep:Creep, resourceId=0) {
         
 	    if(creep.memory.building && creep.store[RESOURCE_ENERGY] == 0) {
             creep.memory.building = false;
@@ -18,24 +18,24 @@ export const roleBuilder = {
 
 	    if(creep.memory.building) {
 
-	        var targets = creep.room.find(FIND_CONSTRUCTION_SITES, {
-                            filter: (structure) => {
-                                return structure.structureType == STRUCTURE_EXTENSION;
-                            }
-                        }
-                    );
-            if(!targets.length)
-            {
-                    var targets = creep.room.find(FIND_CONSTRUCTION_SITES
-                    );
-            }
+	        // var targets = creep.room.find(FIND_CONSTRUCTION_SITES, {
+            //                 filter: (structure) => {
+            //                     return structure.structureType == STRUCTURE_EXTENSION;
+            //                 }
+            //             }
+            //         );
+            // if(!targets.length)
+            // {
+            //         var targets = creep.room.find(FIND_CONSTRUCTION_SITES
+            //         );
+            // }
 
-            if(targets.length) {
-                if(creep.build(targets[0]) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffffff'}});
-                }
-            }
-            else 
+            // if(targets.length) {
+            //     if(creep.build(targets[0]) == ERR_NOT_IN_RANGE) {
+            //         creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffffff'}});
+            //     }
+            // }
+            if(creep.buildStructure() == false)
             {
                 roleUpgrader.run(creep);   
             }
