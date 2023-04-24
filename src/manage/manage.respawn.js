@@ -1,12 +1,14 @@
 export const manageRespawn = {
     run: function () {
         var harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
+        var diggers = _.filter(Game.creeps, (creep) => creep.memory.role == 'digger');
         var builders = _.filter(Game.creeps, (creep) => creep.memory.role == 'builder');
         var upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
         var repairers = _.filter(Game.creeps, (creep) => creep.memory.role == 'repairer');
+        var carriers = _.filter(Game.creeps, (creep) => creep.memory.role == 'carrier');
 
         // recover
-        if (Game.creeps.length == 0) {
+        if (Object.keys(Game.creeps).length == 0) {
             var newName = 'Harvester' + Game.time;
             console.log('Trying to spawn new harvester: ' + newName);
             Game.spawns['Spawn1'].spawnCreep(
@@ -15,15 +17,33 @@ export const manageRespawn = {
                     MOVE], newName,
                 { memory: { role: 'harvester' } });
         }
-        // harvester respawn
-        else if (harvesters.length < 1) {
-            var newName = 'Harvester' + Game.time;
-            console.log('Trying to spawn new harvester: ' + newName);
+        // // harvester respawn
+        // else if (harvesters.length < 1) {
+        //     var newName = 'Harvester' + Game.time;
+        //     console.log('Trying to spawn new harvester: ' + newName);
+        //     Game.spawns['Spawn1'].spawnCreep(
+        //         [WORK,
+        //             CARRY,
+        //             MOVE], newName,
+        //         { memory: { role: 'harvester' } });
+        // }
+        // digger respawn
+        else if (diggers.length < 1) {
+            var newName = 'Digger' + Game.time;
+            console.log('Trying to spawn new digger: ' + newName);
             Game.spawns['Spawn1'].spawnCreep(
-                [WORK,
-                    CARRY,
+                [WORK, WORK, WORK,
                     MOVE], newName,
-                { memory: { role: 'harvester' } });
+                { memory: { role: 'digger' } });
+        }
+        // carrier respawn
+        else if (carriers.length < 1) {
+            var newName = 'carrier' + Game.time;
+            console.log('Trying to spawn new carrier: ' + newName);
+            Game.spawns['Spawn1'].spawnCreep(
+                [CARRY, CARRY, CARRY,
+                    MOVE, MOVE], newName,
+                { memory: { role: 'carrier' } });
         }
         // repairer respawn
         else if (repairers.length < 2) {
@@ -37,24 +57,26 @@ export const manageRespawn = {
         }
 
         // upgrader respawn
-        else if (upgraders.length < 3) {
+        else if (upgraders.length < 4) {
             var newName = 'Upgrader' + Game.time;
             console.log('Trying to spawn new upgrader: ' + newName);
             Game.spawns['Spawn1'].spawnCreep(
-                [WORK,
-                    CARRY,
-                    MOVE], newName,
+                [WORK,WORK,
+                    CARRY,CARRY,
+                    MOVE,MOVE], newName,
                 { memory: { role: 'upgrader' } });
         }
         // builder respawn
-        else if (builders.length < 2) {
+        else if (builders.length < 2&&Game.spawns['Spawn1'].room.find(FIND_CONSTRUCTION_SITES).length>0) {
             var newName = 'Builder' + Game.time;
             console.log('Trying to spawn new builder: ' + newName);
-            Game.spawns['Spawn1'].spawnCreep([WORK,
-                CARRY,
-                MOVE], newName,
+            Game.spawns['Spawn1'].spawnCreep([
+                WORK,WORK,
+                CARRY,CARRY,
+                MOVE,MOVE], newName,
                 { memory: { role: 'builder' } });
         }
+
         // display respawn
         if (Game.spawns['Spawn1'].spawning) {
             var spawningCreep = Game.creeps[Game.spawns['Spawn1'].spawning.name];

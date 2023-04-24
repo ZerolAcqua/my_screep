@@ -16,13 +16,24 @@ export const roleRepairer = {
 
         if (creep.memory.repairing) {
 
+            // 修理 container
             var targets = creep.room.find(FIND_STRUCTURES, {
                         filter: (structure) => {
                             return structure.hits<0.9*structure.hitsMax &&  structure.structureType == STRUCTURE_CONTAINER;
                     }
                 });
 
+            // 修理 rampart
+            if (!targets.length) {
+                targets = creep.room.find(FIND_STRUCTURES, {
+                    filter: (structure) => {
+                        return (structure.hits<0.01
+                        *structure.hitsMax &&  structure.structureType == STRUCTURE_RAMPART);
+                    }
+                });
+            }
 
+            // 修理 road
             if (!targets.length) {
                 targets = creep.room.find(FIND_STRUCTURES, {
                     filter: (structure) => {

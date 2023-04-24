@@ -6,8 +6,8 @@
   "scripts": {
     "push": "rollup -cw --bundleConfigAsCjs --environment DEST:main",
     "local": "rollup -cw --bundleConfigAsCjs --environment  DEST:local",
-    "build": "rollup -cw --bundleConfigAsCjs",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "cross-env TS_NODE_PROJECT='test/tsconfig.test.json' mocha test/**/**.test.ts",
+    "cover": "nyc --reporter=html npm run test"
   },
   "keywords": [],
   "author": "",
@@ -15,16 +15,34 @@
   "devDependencies": {
     "@rollup/plugin-commonjs": "^24.1.0",
     "@rollup/plugin-node-resolve": "^15.0.2",
+    "@types/chai": "^4.3.4",
     "@types/lodash": "^3.10.1",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^18.16.0",
     "@types/screeps": "^3.3.2",
+    "@types/sinon": "^10.0.14",
+    "chai": "^4.3.7",
+    "cross-env": "^7.0.3",
+    "mocha": "^10.2.0",
+    "nyc": "^15.1.0",
     "rollup": "^3.20.6",
     "rollup-plugin-clear": "^2.0.7",
     "rollup-plugin-copy": "^3.4.0",
     "rollup-plugin-screeps": "^1.0.1",
     "rollup-plugin-typescript2": "^0.34.1",
+    "sinon": "^15.0.4",
+    "ts-node": "^10.9.1",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.0.4"
   },
   "dependencies": {
     "source-map": "^0.6.1"
+  },
+  "mocha": {
+    "require": [
+      "ts-node/register",
+      "tsconfig-paths/register"
+    ],
+    "ui": "bdd"
   }
 }
