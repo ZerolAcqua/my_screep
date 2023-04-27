@@ -12,12 +12,7 @@ import {
     roleDigger
 } from './role/role.base'
 
-// // TODO: 引入 tower 
-// import { defend } from '.room/defend'
-// import { towerRepair } from './room/repair'
-
-
-
+// 引入重生管理
 
 import { manageRespawn } from './manage/manage.Respawn'
 
@@ -27,6 +22,15 @@ mount()
 
 // 游戏入口函数
 export const loop = errorMapper(() => {
+
+    
+    if(Game.time%100==0){
+        if(Game.cpu.bucket == 10000) {
+            Game.cpu.generatePixel();
+        }
+    }
+
+
     // clear memory
     for (var name in Memory.creeps) {
         if (!Game.creeps[name]) {
@@ -34,6 +38,12 @@ export const loop = errorMapper(() => {
             console.log('Clearing non-existing creep memory:', name);
         }
     }
+
+    // 房间防御与修理
+    var room = Game.spawns.Spawn1.room
+
+    room.roomDefend()||room.roomRepair()
+
 
     // respawn
     manageRespawn.run();

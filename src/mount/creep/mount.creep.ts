@@ -15,39 +15,59 @@ const creepExtension = {
     // 采能者采集能量
     digEnergy(sourcreId = 0) {
         var sources = this.room.find(FIND_SOURCES);
-        var target = sources[sourcreId].pos.findInRange(FIND_STRUCTURES, 2, {
+        var targets = sources[sourcreId].pos.findInRange(FIND_STRUCTURES, 2, {
             filter: { structureType: STRUCTURE_CONTAINER }
         })
 
-        if (this.pos != target[0].pos) {
-            this.moveTo(target[0])
+        if (this.pos != targets[0].pos) {
+            this.moveTo(targets[0]) == OK || this.moveTo(this.room.getPositionAt(15, 5)) // TODO: 临时解决方案
         }
         this.harvest(sources[sourcreId]) == ERR_NOT_IN_RANGE
     },
     // 收取能量
     withdrawEnergy() {
-        var target = this.room.find(FIND_STRUCTURES, {
+        // var targets = this.room.find(FIND_STRUCTURES, {
+        //     filter: { structureType: STRUCTURE_CONTAINER }
+        // })
+        // var sources = targets[0].pos.findInRange(FIND_DROPPED_RESOURCES, 1)
+
+        // for (var i = 0; i < sources.length; i++) {
+        //     if (sources[i].amount > 100) {
+        //         if (this.pickup(sources[i]) == ERR_NOT_IN_RANGE) {
+        //             this.moveTo(sources[i])
+        //         }
+        //         return
+        //     }
+        // }
+
+        // this.moveTo(targets[0]);
+
+        // if (this.pos.inRangeTo(targets[0], 1)) {
+        //     this.withdraw(targets[0], RESOURCE_ENERGY)
+        // }
+
+        // TODO: 临时解决方案
+        var targets = this.room.find(FIND_STRUCTURES, {
             filter: { structureType: STRUCTURE_CONTAINER }
         })
-        var sources = target[0].pos.findInRange(FIND_DROPPED_RESOURCES, 1)
+        var sources = targets[0].pos.findInRange(FIND_DROPPED_RESOURCES, 1)
 
         for (var i = 0; i < sources.length; i++) {
             if (sources[i].amount > 100) {
                 if (this.pickup(sources[i]) == ERR_NOT_IN_RANGE) {
-                    this.moveTo(sources[i])
+                    this.moveTo(this.room.getPositionAt(16, 5))
                 }
                 return
             }
         }
 
+        this.moveTo(this.room.getPositionAt(16, 5));
 
-        this.moveTo(target[0]);
-
-        if (this.pos.inRangeTo(target[0], 1)) {
-            this.withdraw(target[0], RESOURCE_ENERGY)
+        if (this.pos.inRangeTo(targets[0], 1)) {
+            this.withdraw(targets[0], RESOURCE_ENERGY)
         }
-    },
 
+    },
     // 填充所有 spawn 和 extension
     fillSpawnEngery() {
         var targets = this.room.find(FIND_STRUCTURES, {

@@ -67,7 +67,7 @@ export const manageRespawn = {
                 { memory: { role: 'upgrader' } });
         }
         // builder respawn
-        else if (builders.length < 2&&Game.spawns['Spawn1'].room.find(FIND_CONSTRUCTION_SITES).length>0) {
+        else if (builders.length < 1&&Game.spawns['Spawn1'].room.find(FIND_CONSTRUCTION_SITES).length>0) {
             var newName = 'Builder' + Game.time;
             console.log('Trying to spawn new builder: ' + newName);
             Game.spawns['Spawn1'].spawnCreep([

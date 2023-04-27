@@ -26,7 +26,7 @@ export const roleHarvester = {
 };
 
 /** 采能者角色
-*   无脑采集能源泉
+*   无脑采集能源
 */
 export const roleDigger = {
     /** 
@@ -115,7 +115,18 @@ export const roleBuilder = {
         }
 
         if (creep.memory.working) {
-            creep.buildStructure() == false
+            if(creep.buildStructure()==false){
+                var targets = creep.room.find(FIND_STRUCTURES, {
+                    filter: (structure) => {
+                        return (structure.hits < 2000 && structure.structureType == STRUCTURE_RAMPART);
+                    }
+                });
+                if (targets.length) {
+                    if (creep.repair(targets[0]) == ERR_NOT_IN_RANGE) {
+                        creep.moveTo(targets[0], { visualizePathStyle: { stroke: '#ff0000' } });
+                    }
+                }
+            }
         }
 
         else {
