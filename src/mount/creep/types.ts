@@ -13,6 +13,7 @@ interface Creep {
      * 收取能量
      */
     withdrawEnergy(): void
+
     /** 
      * 填充所有 spawn 和 extension
      */
@@ -22,8 +23,25 @@ interface Creep {
      */
     fillTower(): boolean
     /** 
+     * 填充 storage
+     */
+    fillStorage(): boolean
+    
+    /** 
      * 建造建筑
      */
     buildStructure(): boolean
-
+    
+    /**
+     * 修理 container
+     */
+    repairContainer(): boolean
+    /**
+     * 修理 road
+     */
+    repairRoad(): boolean
+    /**
+     * 修理 rampart 和 wall
+     */
+    repairRamptWall(): boolean
 }

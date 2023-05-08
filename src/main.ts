@@ -40,9 +40,9 @@ export const loop = errorMapper(() => {
     }
 
     // 房间防御与修理
-    var room = Game.spawns.Spawn1.room
+    var room = Game.spawns.Spawn1.room;
 
-    room.roomDefend()||room.roomRepair()
+    room.defendEnemy()||room.repairBuilding();
 
 
     // respawn

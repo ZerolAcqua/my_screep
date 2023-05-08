@@ -55,7 +55,7 @@ const creepExtension = {
         for (var i = 0; i < sources.length; i++) {
             if (sources[i].amount > 100) {
                 if (this.pickup(sources[i]) == ERR_NOT_IN_RANGE) {
-                    this.moveTo(this.room.getPositionAt(16, 5))
+                    this.moveTo(this.room.getPositionAt(16, 5)) // 这里把坐标写死了
                 }
                 return
             }
@@ -87,7 +87,7 @@ const creepExtension = {
             });
         }
 
-        if (targets.length) {
+        if (targets.length > 0) {
             if (this.transfer(targets[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
                 this.moveTo(targets[0]);
             }
@@ -108,7 +108,28 @@ const creepExtension = {
                     structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
             }
         });
-        if (targets.length) {
+        if (targets.length > 0) {
+            if (this.transfer(targets[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                this.moveTo(targets[0]);
+            }
+            return true;
+        }
+        else {
+            return false;
+        }
+    },
+
+
+    // 填充 storage
+    fillStorage() {
+        // to storage
+        var targets = this.room.find(FIND_STRUCTURES, {
+            filter: (structure) => {
+                return (structure.structureType == STRUCTURE_STORAGE) &&
+                    structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
+            }
+        });
+        if (targets.length > 0) {
             if (this.transfer(targets[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
                 this.moveTo(targets[0]);
             }
@@ -146,5 +167,70 @@ const creepExtension = {
         }
     },
     // 其他更多自定义拓展
+
+    // 修理 container
+    repairContainer() {
+        var targets = this.room.find(FIND_STRUCTURES, {
+            filter: (structure) => {
+                return (structure.structureType == STRUCTURE_CONTAINER) &&
+                    structure.hits < 0.9 * structure.hitsMax;
+            }
+        });
+        if (targets.length > 0) {
+            if (this.repair(targets[0]) == ERR_NOT_IN_RANGE) {
+                this.moveTo(targets[0]);
+            }
+            return true;
+        }
+        else {
+            return false;
+        }
+    },
+
+    // 修理 road
+    repairRoad() {
+        var targets = this.room.find(FIND_STRUCTURES, {
+            filter: (structure) => {
+                return (structure.structureType == STRUCTURE_ROAD) &&
+                    structure.hits < 0.9 * structure.hitsMax;
+            }
+        });
+        if (targets.length > 0) {
+            if (this.repair(targets[0]) == ERR_NOT_IN_RANGE) {
+                this.moveTo(targets[0]);
+            }
+            return true;
+        }
+        else {
+            return false;
+        }
+    },
+
+    // 修理 rampart 和 wall
+    repairRamptWall() {
+        var targets = this.room.find(FIND_STRUCTURES, {
+            filter: (structure) => {
+                return (structure.structureType == STRUCTURE_RAMPART || structure.structureType == STRUCTURE_WALL) &&
+                    structure.hits < 0.1 * structure.hitsMax;
+            }
+        });
+        if (targets.length == 0) {
+            targets = this.room.find(FIND_STRUCTURES, {
+                filter: (structure) => {
+                    return structure.hits < 0.0005 * structure.hitsMax && structure.structureType == STRUCTURE_WALL;
+                }
+            });
+        }
+        if (targets.length > 0) {
+            if (this.repair(targets[0]) == ERR_NOT_IN_RANGE) {
+                this.moveTo(targets[0]);
+            }
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
 
 }

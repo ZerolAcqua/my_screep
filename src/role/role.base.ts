@@ -55,7 +55,7 @@ export const roleCarrier = {
 
 
         if (creep.memory.working==true) {
-            creep.fillSpawnEngery()||creep.fillTower()
+            creep.fillSpawnEngery()||creep.fillTower()||creep.fillStorage()
         }
         else {
             creep.withdrawEnergy()
@@ -126,6 +126,9 @@ export const roleBuilder = {
                         creep.moveTo(targets[0], { visualizePathStyle: { stroke: '#ff0000' } });
                     }
                 }
+                else {
+                    creep.repairRamptWall()
+                }
             }
         }
 
@@ -155,48 +158,50 @@ export const roleRepairer = {
 
         if (creep.memory.working) {
 
-            // 修理 container
-            var targets = creep.room.find(FIND_STRUCTURES, {
-                filter: (structure) => {
-                    return structure.hits < 0.9 * structure.hitsMax && structure.structureType == STRUCTURE_CONTAINER;
-                }
-            });
+            // // 修理 container
+            // var targets = creep.room.find(FIND_STRUCTURES, {
+            //     filter: (structure) => {
+            //         return structure.hits < 0.9 * structure.hitsMax && structure.structureType == STRUCTURE_CONTAINER;
+            //     }
+            // });
 
 
-            // 修理 road
-            if (!targets.length) {
-                targets = creep.room.find(FIND_STRUCTURES, {
-                    filter: (structure) => {
-                        return structure.hits < 0.9 * structure.hitsMax && structure.structureType == STRUCTURE_ROAD;
-                    }
-                });
-            }
+            // // 修理 road
+            // if (!targets.length) {
+            //     targets = creep.room.find(FIND_STRUCTURES, {
+            //         filter: (structure) => {
+            //             return structure.hits < 0.9 * structure.hitsMax && structure.structureType == STRUCTURE_ROAD;
+            //         }
+            //     });
+            // }
 
-            // 修理 rampart
-            if (!targets.length) {
-                targets = creep.room.find(FIND_STRUCTURES, {
-                    filter: (structure) => {
-                        return (structure.hits < 0.1
-                            * structure.hitsMax && structure.structureType == STRUCTURE_RAMPART);
-                    }
-                });
-            }
+            // // 修理 rampart
+            // if (!targets.length) {
+            //     targets = creep.room.find(FIND_STRUCTURES, {
+            //         filter: (structure) => {
+            //             return (structure.hits < 0.1
+            //                 * structure.hitsMax && structure.structureType == STRUCTURE_RAMPART);
+            //         }
+            //     });
+            // }
 
-            // 修理 wall
-            if(!targets.length)
-            {
-                targets = creep.room.find(FIND_STRUCTURES, {
-                        filter: (structure) => {
-                            return structure.hits<0.0005*structure.hitsMax &&  structure.structureType == STRUCTURE_WALL;
-                    }
-                });
-            }
+            // // 修理 wall
+            // if(!targets.length)
+            // {
+            //     targets = creep.room.find(FIND_STRUCTURES, {
+            //             filter: (structure) => {
+            //                 return structure.hits<0.0005*structure.hitsMax &&  structure.structureType == STRUCTURE_WALL;
+            //         }
+            //     });
+            // }
 
-            if (targets.length) {
-                if (creep.repair(targets[0]) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(targets[0], { visualizePathStyle: { stroke: '#ff0000' } });
-                }
-            }
+            // if (targets.length) {
+            //     if (creep.repair(targets[0]) == ERR_NOT_IN_RANGE) {
+            //         creep.moveTo(targets[0], { visualizePathStyle: { stroke: '#ff0000' } });
+            //     }
+            // }
+
+            creep.repairContainer() || creep.repairRoad() || creep.repairRamptWall()
         }
         else {
             // var sources = creep.room.find(FIND_SOURCES);

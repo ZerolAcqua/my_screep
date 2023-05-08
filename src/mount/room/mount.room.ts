@@ -9,7 +9,7 @@ export function mountRoom() {
 const roomExtension = {
 
     // 房间防御
-    roomDefend() {
+    defendEnemy() {
         var hostiles = this.find(FIND_HOSTILE_CREEPS);
         if (hostiles.length > 0) {
             var towers = this.find(
@@ -24,13 +24,14 @@ const roomExtension = {
     },
 
     // 房间修理
-    roomRepair() {
+    repairBuilding() {
         var towers = this.find(
             FIND_MY_STRUCTURES, { filter: { structureType: STRUCTURE_TOWER } });
         // 1.rampart
         var targets = this.find(FIND_STRUCTURES, {
             filter: (structure) => {
-                return (structure.hits < 0.01
+                // 初始值为 0.01
+                return (structure.hits < 0.05
                     * structure.hitsMax && structure.structureType == STRUCTURE_RAMPART);
             }
         });
@@ -46,7 +47,8 @@ const roomExtension = {
         if (!targets.length) {
             targets = this.find(FIND_STRUCTURES, {
                 filter: (structure) => {
-                    return structure.hits < 0.0005 * structure.hitsMax && structure.structureType == STRUCTURE_WALL;
+                    // 初始值为 0.0005
+                    return structure.hits < 0.0010 * structure.hitsMax && structure.structureType == STRUCTURE_WALL;
                 }
             });
             // // 对 targets 按 hits 从小到大排序
