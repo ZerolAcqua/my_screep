@@ -1,5 +1,7 @@
-import {mountCreep} from './creep/mount.creep'
-import {mountRoom} from './room/mount.room'
+import { mountCreep } from './creep/mount.creep'
+import { mountRoom } from './room/mount.room'
+import { mountStructure } from './structures/mount.structure'
+
 // import mountFlag from './mount.flag'
 
 
@@ -9,6 +11,7 @@ export function mount() {
 
     mountCreep()
     mountRoom()
+    mountStructure()
     // mountFlag()
     // 其他更多拓展...
 }

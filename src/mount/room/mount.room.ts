@@ -5,11 +5,27 @@ export function mountRoom() {
     _.assign(Room.prototype, roomExtension)
 }
 
+
 // 自定义的 Room 的拓展
 const roomExtension = {
 
+    /**
+     * 房间运作
+     */
+    work(): void {
+        this.defendEnemy() || this.repairBuilding();
+    },
+
+    /**
+     * 房间孵化
+     * @param creepName 要孵化的 creep 名称
+     */
+    addSpawnTask(creepName: string): void {
+
+    },
+
     // 房间防御
-    defendEnemy() {
+    defendEnemy(): boolean {
         var hostiles = this.find(FIND_HOSTILE_CREEPS);
         if (hostiles.length > 0) {
             var towers = this.find(
@@ -24,7 +40,7 @@ const roomExtension = {
     },
 
     // 房间修理
-    repairBuilding() {
+    repairBuilding(): boolean {
         var towers = this.find(
             FIND_MY_STRUCTURES, { filter: { structureType: STRUCTURE_TOWER } });
         // 1.rampart

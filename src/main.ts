@@ -31,7 +31,7 @@ export const loop = errorMapper(() => {
     }
 
 
-    // clear memory
+    // 清理内存
     for (var name in Memory.creeps) {
         if (!Game.creeps[name]) {
             delete Memory.creeps[name];
@@ -42,7 +42,8 @@ export const loop = errorMapper(() => {
     // 房间防御与修理
     var room = Game.spawns.Spawn1.room;
 
-    room.defendEnemy()||room.repairBuilding();
+    room.work();
+
 
 
     // respawn

@@ -6,14 +6,14 @@ export function mountCreep() {
 // 自定义的 Creep 的拓展
 const creepExtension = {
     // 采集能量
-    harvestEnergy(sourcreId = 0) {
+    harvestEnergy(sourcreId = 0): void {
         var sources = this.room.find(FIND_SOURCES);
         if (this.harvest(sources[sourcreId]) == ERR_NOT_IN_RANGE) {
             this.moveTo(sources[sourcreId]);
         }
     },
     // 采能者采集能量
-    digEnergy(sourcreId = 0) {
+    digEnergy(sourcreId = 0): void {
         var sources = this.room.find(FIND_SOURCES);
         var targets = sources[sourcreId].pos.findInRange(FIND_STRUCTURES, 2, {
             filter: { structureType: STRUCTURE_CONTAINER }
@@ -25,7 +25,7 @@ const creepExtension = {
         this.harvest(sources[sourcreId]) == ERR_NOT_IN_RANGE
     },
     // 收取能量
-    withdrawEnergy() {
+    withdrawEnergy(): void {
         // var targets = this.room.find(FIND_STRUCTURES, {
         //     filter: { structureType: STRUCTURE_CONTAINER }
         // })
@@ -69,7 +69,7 @@ const creepExtension = {
 
     },
     // 填充所有 spawn 和 extension
-    fillSpawnEngery() {
+    fillSpawnEngery(): boolean {
         var targets = this.room.find(FIND_STRUCTURES, {
             filter: (structure) => {
                 return (structure.structureType == STRUCTURE_EXTENSION) &&
@@ -100,7 +100,7 @@ const creepExtension = {
     },
 
     // 填充所有 tower
-    fillTower() {
+    fillTower(): boolean {
         // to TOWER
         var targets = this.room.find(FIND_STRUCTURES, {
             filter: (structure) => {
@@ -121,7 +121,7 @@ const creepExtension = {
 
 
     // 填充 storage
-    fillStorage() {
+    fillStorage(): boolean {
         // to storage
         var targets = this.room.find(FIND_STRUCTURES, {
             filter: (structure) => {
@@ -141,7 +141,7 @@ const creepExtension = {
     },
 
     // 建造建筑
-    buildStructure() {
+    buildStructure(): boolean {
         // 先找 extension
         var targets = this.room.find(FIND_CONSTRUCTION_SITES, {
             filter: (structure) => {
@@ -169,7 +169,7 @@ const creepExtension = {
     // 其他更多自定义拓展
 
     // 修理 container
-    repairContainer() {
+    repairContainer(): boolean {
         var targets = this.room.find(FIND_STRUCTURES, {
             filter: (structure) => {
                 return (structure.structureType == STRUCTURE_CONTAINER) &&
@@ -188,7 +188,7 @@ const creepExtension = {
     },
 
     // 修理 road
-    repairRoad() {
+    repairRoad(): boolean {
         var targets = this.room.find(FIND_STRUCTURES, {
             filter: (structure) => {
                 return (structure.structureType == STRUCTURE_ROAD) &&
@@ -207,7 +207,7 @@ const creepExtension = {
     },
 
     // 修理 rampart 和 wall
-    repairRamptWall() {
+    repairRamptWall(): boolean {
         var targets = this.room.find(FIND_STRUCTURES, {
             filter: (structure) => {
                 return (structure.structureType == STRUCTURE_RAMPART || structure.structureType == STRUCTURE_WALL) &&
