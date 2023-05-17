@@ -1,5 +1,10 @@
 interface Creep {
     /**
+    * Creep 执行工作
+    */
+    work(): void 
+
+    /**
      * 采集能量
      * @param number sourcreId 能量源的 id
      */
@@ -9,6 +14,10 @@ interface Creep {
      * @param number sourcreId 能量源的 id
      */
     digEnergy(sourcreId: number): void
+    /**
+     * 搬运者收集能量到 Storage
+     */
+    gatherEnergy(): void
     /**
      * 收取能量
      */

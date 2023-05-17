@@ -5,6 +5,13 @@ export function mountCreep() {
 
 // 自定义的 Creep 的拓展
 const creepExtension = {
+
+    // Creep 执行工作
+    work(): void {
+        
+    },
+
+
     // 采集能量
     harvestEnergy(sourcreId = 0): void {
         var sources = this.room.find(FIND_SOURCES);
@@ -23,6 +30,28 @@ const creepExtension = {
             this.moveTo(targets[0]) == OK || this.moveTo(this.room.getPositionAt(15, 5)) // TODO: 临时解决方案
         }
         this.harvest(sources[sourcreId]) == ERR_NOT_IN_RANGE
+    },
+    // 收集能量
+    gatherEnergy(): void {
+        var targets = this.room.find(FIND_STRUCTURES, {
+            filter: { structureType: STRUCTURE_CONTAINER }
+        })
+        var sources = targets[0].pos.findInRange(FIND_DROPPED_RESOURCES, 1)
+
+        for (var i = 0; i < sources.length; i++) {
+            if (sources[i].amount > 100) {
+                if (this.pickup(sources[i]) == ERR_NOT_IN_RANGE) {
+                    this.moveTo(this.room.getPositionAt(16, 5)) // 这里把坐标写死了
+                }
+                return
+            }
+        }
+
+        this.moveTo(this.room.getPositionAt(16, 5));
+
+        if (this.pos.inRangeTo(targets[0], 1)) {
+            this.withdraw(targets[0], RESOURCE_ENERGY)
+        }
     },
     // 收取能量
     withdrawEnergy(): void {
@@ -47,23 +76,27 @@ const creepExtension = {
         // }
 
         // TODO: 临时解决方案
+        // var targets = this.room.find(FIND_STRUCTURES, {
+        //     filter: { structureType: STRUCTURE_CONTAINER }
+        // })
+        // TODO: 临时解决方案
         var targets = this.room.find(FIND_STRUCTURES, {
-            filter: { structureType: STRUCTURE_CONTAINER }
+            filter: { structureType: STRUCTURE_STORAGE }
         })
-        var sources = targets[0].pos.findInRange(FIND_DROPPED_RESOURCES, 1)
+        // var sources = targets[0].pos.findInRange(FIND_DROPPED_RESOURCES, 1)
 
-        for (var i = 0; i < sources.length; i++) {
-            if (sources[i].amount > 100) {
-                if (this.pickup(sources[i]) == ERR_NOT_IN_RANGE) {
-                    this.moveTo(this.room.getPositionAt(16, 5)) // 这里把坐标写死了
-                }
-                return
-            }
-        }
+        // for (var i = 0; i < sources.length; i++) {
+        //     if (sources[i].amount > 100) {
+        //         if (this.pickup(sources[i]) == ERR_NOT_IN_RANGE) {
+        //             this.moveTo(this.room.getPositionAt(16, 5)) // 这里把坐标写死了
+        //         }
+        //         return
+        //     }
+        // }
 
-        this.moveTo(this.room.getPositionAt(16, 5));
+        // this.moveTo(this.room.getPositionAt(16, 5));
 
-        if (this.pos.inRangeTo(targets[0], 1)) {
+        if (this.moveTo(targets[0])==OK) {
             this.withdraw(targets[0], RESOURCE_ENERGY)
         }
 

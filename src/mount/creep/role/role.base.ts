@@ -14,8 +14,8 @@ export const roleHarvester = {
             creep.memory.working = true;
             creep.say('carrying');
         }
-       
-        if (creep.memory.working==true) {
+
+        if (creep.memory.working == true) {
             creep.fillSpawnEngery()
 
         }
@@ -54,11 +54,11 @@ export const roleCarrier = {
         }
 
 
-        if (creep.memory.working==true) {
-            creep.fillSpawnEngery()||creep.fillTower()||creep.fillStorage()
+        if (creep.memory.working == true) {
+            creep.fillSpawnEngery() || creep.fillTower() || creep.fillStorage()
         }
         else {
-            creep.withdrawEnergy()
+            creep.gatherEnergy()
         }
     }
 };
@@ -72,7 +72,6 @@ export const roleUpgrader = {
     run: function (creep: Creep) {
         if (creep.memory.working && creep.store[RESOURCE_ENERGY] == 0) {
             creep.memory.working = false;
-            creep.say('harvest');
         }
         if (!creep.memory.working && creep.store.getFreeCapacity() == 0) {
             creep.memory.working = true;
@@ -82,8 +81,8 @@ export const roleUpgrader = {
 
         if (creep.memory.working) {
             if (creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(creep.room.controller, {visualizePathStyle: {stroke: '#ffffff'}});
-                // creep.moveTo(creep.room.getPositionAt(32, 22), { visualizePathStyle: { stroke: '#ffffff' } });
+                // creep.moveTo(creep.room.controller, {visualizePathStyle: {stroke: '#ffffff'}});
+                creep.moveTo(creep.room.getPositionAt(32, 22), { visualizePathStyle: { stroke: '#ffffff' } });
             }
         }
         else {
@@ -92,9 +91,23 @@ export const roleUpgrader = {
             //     creep.moveTo(sources[1], { visualizePathStyle: { stroke: '#ffaa00' } });
             // }
             // creep.withdrawEnergy()
-            creep.harvestEnergy(1)
+            // creep.harvestEnergy(1)
+            creep.withdraw(Game.getObjectById(creep.room.memory['upgradeLinkId']) as Structure, RESOURCE_ENERGY)
         }
+    },
+    /** 
+     * @param {Creep} creep 
+     */
+    prepare: function (creep: Creep): void {
+        if (creep.pos.x != 32 || creep.pos.y != 22) {
+            creep.moveTo(32, 22)
+        }
+        else {
+            creep.memory.ready = true
+        }
+
     }
+
 };
 
 
@@ -115,7 +128,7 @@ export const roleBuilder = {
         }
 
         if (creep.memory.working) {
-            if(creep.buildStructure()==false){
+            if (creep.buildStructure() == false) {
                 var targets = creep.room.find(FIND_STRUCTURES, {
                     filter: (structure) => {
                         return (structure.hits < 2000 && structure.structureType == STRUCTURE_RAMPART);
@@ -201,7 +214,7 @@ export const roleRepairer = {
             //     }
             // }
 
-            creep.repairContainer() || creep.repairRoad() || creep.repairRamptWall()
+            creep.repairRamptWall()
         }
         else {
             // var sources = creep.room.find(FIND_SOURCES);

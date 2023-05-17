@@ -1,6 +1,11 @@
 // 引入外部依赖
 import { errorMapper } from './modules/errorMapper'
-import { sayHello } from './modules/utils'
+
+// 引入其他功能模块
+import {
+    generatePixel,
+    clearDeadCreeps
+} from './modules/utils'
 
 // 引入角色
 import {
@@ -10,45 +15,42 @@ import {
     roleBuilder,
     roleRepairer,
     roleDigger
-} from './role/role.base'
+} from './mount/creep/role/role.base'
+
+import {
+    roleProcessor,
+} from './mount/creep/role/role.advance'
+
 
 // 引入重生管理
-
 import { manageRespawn } from './manage/manage.Respawn'
 
-import { mount } from './mount/mount'
 
+// 挂载原型拓展
+import { mount } from './mount/mount'
 mount()
 
 // 游戏入口函数
 export const loop = errorMapper(() => {
 
+
+    // 生成 pixel
+    generatePixel()
+
+
+    // 清理 creeps 内存
+    clearDeadCreeps()
+
+    // 房间运作
+    const rooms = Object.values(Game.rooms) as Room[]
+    rooms.forEach((room) => {room.work()})
     
-    if(Game.time%100==0){
-        if(Game.cpu.bucket == 10000) {
-            Game.cpu.generatePixel();
-        }
-    }
 
+    
+    // creep 数量控制
+    manageRespawn.work();
 
-    // 清理内存
-    for (var name in Memory.creeps) {
-        if (!Game.creeps[name]) {
-            delete Memory.creeps[name];
-            console.log('Clearing non-existing creep memory:', name);
-        }
-    }
-
-    // 房间防御与修理
-    var room = Game.spawns.Spawn1.room;
-
-    room.work();
-
-
-
-    // respawn
-    manageRespawn.run();
-
+    // creep 运转
     for (var name in Game.creeps) {
         var creep = Game.creeps[name];
         if (creep.memory.role == 'harvester') {
@@ -61,13 +63,18 @@ export const loop = errorMapper(() => {
             roleCarrier.run(creep);
         }
         if (creep.memory.role == 'upgrader') {
-            roleUpgrader.run(creep);
+            if (creep.memory.ready) roleUpgrader.run(creep)
+            else roleUpgrader.prepare(creep)
         }
         if (creep.memory.role == 'builder') {
             roleBuilder.run(creep);
         }
         if (creep.memory.role == 'repairer') {
             roleRepairer.run(creep);
+        }
+        if (creep.memory.role == 'processor') {
+            if (creep.memory.ready) roleProcessor.run(creep)
+            else roleProcessor.prepare(creep)
         }
     }
 })

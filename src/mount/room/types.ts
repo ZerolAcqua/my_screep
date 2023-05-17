@@ -1,9 +1,23 @@
+interface RoomMemory {
+    /**
+     * 房间中央集群核心位置
+     */
+    center: [number, number]
+}
+
 interface Room {
+
+
+    /**
+     * 设置房间中央集群核心位置
+     */
+    setCoreCenter(center: RoomPosition): void
+
     /**
      * 房间运作
      */
     work(): void
-    
+
     /**
      * TODO: 未完成
      * 房间孵化
