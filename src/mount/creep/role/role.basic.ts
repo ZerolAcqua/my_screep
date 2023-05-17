@@ -1,7 +1,7 @@
 /** 采集者角色
 *   用于初始启动的角色
 */
-export const roleHarvester = {
+const roleHarvester: FuncDict = {
     /** 
      * @param {Creep} creep 
      */
@@ -28,7 +28,7 @@ export const roleHarvester = {
 /** 采能者角色
 *   无脑采集能源
 */
-export const roleDigger = {
+const roleDigger: FuncDict = {
     /** 
      * @param {Creep} creep 
      */
@@ -39,7 +39,7 @@ export const roleDigger = {
 
 /** 搬运者角色
 */
-export const roleCarrier = {
+const roleCarrier: FuncDict = {
     /** 
      * @param {Creep} creep 
      */
@@ -66,7 +66,7 @@ export const roleCarrier = {
 /**
  * 升级者角色
  */
-export const roleUpgrader = {
+const roleUpgrader: FuncDict = {
 
     /** @param {Creep} creep **/
     run: function (creep: Creep) {
@@ -114,7 +114,7 @@ export const roleUpgrader = {
 /** 建造者角色
 * 
 */
-export const roleBuilder = {
+const roleBuilder: FuncDict = {
     /** @param {Creep} creep **/
     run: function (creep: Creep, resourceId = 1) {
 
@@ -156,7 +156,7 @@ export const roleBuilder = {
  * 修理者角色
  */
 
-export const roleRepairer = {
+const roleRepairer: FuncDict = {
     /** @param {Creep} creep **/
     run: function (creep: Creep) {
 
@@ -225,3 +225,13 @@ export const roleRepairer = {
         }
     }
 };
+
+
+export const basicRoles: { [key: string]: FuncDict } = {
+    "harvester": roleHarvester,
+    "digger": roleDigger,
+    "carrier": roleCarrier,
+    "upgrader": roleUpgrader,
+    "builder": roleBuilder,
+    "repairer": roleRepairer
+}

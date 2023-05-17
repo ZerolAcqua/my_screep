@@ -1,9 +1,7 @@
-import { read } from "fs";
-
 /** 中央处理者角色
 *   用于中央集群处理的角色
 */
-export const roleProcessor = {
+const roleProcessor: FuncDict = {
     /** 
      * @param {Creep} creep 
      */
@@ -41,3 +39,8 @@ export const roleProcessor = {
 
     }
 };
+
+export const advancedRoles: { [key: string]: FuncDict } = {
+    "processor": roleProcessor,
+}
+

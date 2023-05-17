@@ -3,12 +3,29 @@ export function mountCreep() {
     _.assign(Creep.prototype, creepExtension)
 }
 
+// 引入角色
+import {
+    basicRoles,
+} from './role/role.basic'
+
+import {
+    advancedRoles,
+} from './role/role.advanced'
+
+// 将角色字典拼接
+
+const roles = { ...basicRoles, ...advancedRoles }
+
+
 // 自定义的 Creep 的拓展
 const creepExtension = {
 
     // Creep 执行工作
     work(): void {
-        
+        if ("prepare" in roles[this.memory.role] && !this.memory.ready)
+            roles[this.memory.role].prepare(this)
+        else
+            roles[this.memory.role].run(this)
     },
 
 
@@ -96,7 +113,7 @@ const creepExtension = {
 
         // this.moveTo(this.room.getPositionAt(16, 5));
 
-        if (this.moveTo(targets[0])==OK) {
+        if (this.moveTo(targets[0]) == OK) {
             this.withdraw(targets[0], RESOURCE_ENERGY)
         }
 

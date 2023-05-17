@@ -7,21 +7,6 @@ import {
     clearDeadCreeps
 } from './modules/utils'
 
-// 引入角色
-import {
-    roleHarvester,
-    roleUpgrader,
-    roleCarrier,
-    roleBuilder,
-    roleRepairer,
-    roleDigger
-} from './mount/creep/role/role.base'
-
-import {
-    roleProcessor,
-} from './mount/creep/role/role.advance'
-
-
 // 引入重生管理
 import { manageRespawn } from './manage/manage.Respawn'
 
@@ -51,32 +36,8 @@ export const loop = errorMapper(() => {
     manageRespawn.work();
 
     // creep 运转
-    for (var name in Game.creeps) {
-        var creep = Game.creeps[name];
-        if (creep.memory.role == 'harvester') {
-            roleHarvester.run(creep);
-        }
-        if (creep.memory.role == 'digger') {
-            roleDigger.run(creep);
-        }
-        if (creep.memory.role == 'carrier') {
-            roleCarrier.run(creep);
-        }
-        if (creep.memory.role == 'upgrader') {
-            if (creep.memory.ready) roleUpgrader.run(creep)
-            else roleUpgrader.prepare(creep)
-        }
-        if (creep.memory.role == 'builder') {
-            roleBuilder.run(creep);
-        }
-        if (creep.memory.role == 'repairer') {
-            roleRepairer.run(creep);
-        }
-        if (creep.memory.role == 'processor') {
-            if (creep.memory.ready) roleProcessor.run(creep)
-            else roleProcessor.prepare(creep)
-        }
-    }
+    const creeps = Object.values(Game.creeps) as Creep[]
+    creeps.forEach((creep) => {creep.work()})
 })
 
 

@@ -1,3 +1,5 @@
+type FuncDict = { [key: string]: Function }
+
 interface CreepMemory {
     /**
      * 该 creep 的角色
@@ -14,7 +16,6 @@ interface CreepMemory {
      */
     working: boolean
 }
-
 
 // -- TODO: 角色的类型重构 --
 
