@@ -33,7 +33,7 @@ export const manageRespawn = {
             var newName = 'carrier' + Game.time;
             console.log('Trying to spawn new carrier: ' + newName);
             Game.spawns['Spawn1'].spawnCreep(
-                [CARRY, CARRY, CARRY,
+                [CARRY, CARRY, CARRY, CARRY,
                     MOVE, MOVE], newName,
                 { memory: { role: 'carrier' } });
         }
