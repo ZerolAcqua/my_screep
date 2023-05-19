@@ -1,47 +1,53 @@
-// 将拓展签入 Room 原型
-export function mountRoom() {
-    _.assign(Room.prototype, roomExtension)
-}
-
-
-// 自定义的 Room 的拓展
-const roomExtension = {
+/**
+ * @description
+ * 自定义的 Storage 的拓展
+ */
+export class RoomExtension extends Room {
 
     /**
+     * @description
      * 设置房间中央集群核心位置
+     * @param center 中央集群核心位置
      */
-    setCoreCenter(center: RoomPosition): void {
+    public setCoreCenter(center: RoomPosition): void {
         this.memory.center = [center.x, center.y]
-    },
+    }
 
 
     /**
+     * @description
      * 房间运作
      */
-    work(): void {
+    public work(): void {
 
         const structures = this.find(FIND_MY_STRUCTURES);
 
         structures.forEach((structure) => {
             structure.work();
         })
-        
+
         this.defendEnemy() || this.repairBuilding();
-    },
+    }
 
     /**
+     * @description
      * 房间孵化
      * @param creepName 要孵化的 creep 名称
+     * @todo 未完成
      */
     addSpawnTask(creepName: string): void {
 
-    },
+    }
 
-    // 房间防御
+    /** 
+     * @description
+     * 房间防御
+     * @returns 是否执行了防御
+     */
     defendEnemy(): boolean {
         var hostiles = this.find(FIND_HOSTILE_CREEPS);
         if (hostiles.length > 0) {
-            var towers = this.find(
+            var towers: StructureTower[] = this.find(
                 FIND_MY_STRUCTURES, { filter: { structureType: STRUCTURE_TOWER } });
             towers.forEach(tower => tower.attack(hostiles[0]));
             return true;
@@ -50,11 +56,15 @@ const roomExtension = {
             return false
         }
 
-    },
+    }
 
-    // 房间修理
+    /** 
+     * @description
+     * 房间修理
+     * @returns 是否执行了修理
+     */
     repairBuilding(): boolean {
-        var towers = this.find(
+        var towers: StructureTower[] = this.find(
             FIND_MY_STRUCTURES, { filter: { structureType: STRUCTURE_TOWER } });
 
         var targets = []
@@ -111,7 +121,5 @@ const roomExtension = {
         }
         return true;
     }
-
-    // 其他更多自定义拓展
 
 }

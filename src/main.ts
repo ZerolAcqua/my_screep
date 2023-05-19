@@ -5,18 +5,20 @@ import { errorMapper } from './modules/errorMapper'
 import {
     generatePixel,
     clearDeadCreeps
-} from './modules/utils'
+} from './utils'
 
 // 引入重生管理
 import { manageRespawn } from './manage/manage.Respawn'
 
 
-// 挂载原型拓展
-import { mount } from './mount/mount'
-mount()
+
+import mount from './mount'
 
 // 游戏入口函数
 export const loop = errorMapper(() => {
+
+    // 挂载原型拓展
+    mount()
 
 
     // 生成 pixel
@@ -28,16 +30,16 @@ export const loop = errorMapper(() => {
 
     // 房间运作
     const rooms = Object.values(Game.rooms) as Room[]
-    rooms.forEach((room) => {room.work()})
-    
+    rooms.forEach((room) => { room.work() })
 
-    
+
+
     // creep 数量控制
     manageRespawn.work();
 
     // creep 运转
     const creeps = Object.values(Game.creeps) as Creep[]
-    creeps.forEach((creep) => {creep.work()})
+    creeps.forEach((creep) => { creep.work() })
 })
 
 

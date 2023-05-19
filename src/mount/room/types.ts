@@ -3,6 +3,21 @@ interface RoomMemory {
      * 房间中央集群核心位置
      */
     center: [number, number]
+
+    /**
+     * 房间中央 link id
+     */
+    centerLinkId?: string
+
+    /**
+     * 升级 link id
+     */
+    upgradeLinkId?: string
+
+    /**
+     * Storage id 
+     */
+    storageId?: string
 }
 
 interface Room {
