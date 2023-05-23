@@ -26,18 +26,73 @@ export class RoomExtension extends Room {
             structure.work();
         })
 
+        this.doSpawnTask();
+
         this.defendEnemy() || this.repairBuilding();
     }
 
     /**
      * @description
-     * 房间孵化
+     * 添加房间孵化任务
      * @param creepName 要孵化的 creep 名称
      * @todo 未完成
      */
-    addSpawnTask(creepName: string): void {
-
+    public addSpawnTask(creepName: string): number | ERR_NAME_EXISTS {
+        if (!this.memory.spawnList) this.memory.spawnList = []
+        // 先检查下任务是不是已经在队列里了
+        if (!this.hasSpawnTask(creepName)) {
+            // 任务加入队列
+            this.memory.spawnList.push(creepName)
+            return this.memory.spawnList.length - 1
+        }
+        // 如果已经有的话返回异常
+        else return ERR_NAME_EXISTS
     }
+
+    /**
+     * 检查生产队列中是否包含指定任务
+     * 
+     * @param taskName 要检查的任务名
+     * @returns true/false 有/没有
+     */
+    public hasSpawnTask(taskName: string): boolean {
+        if (!this.memory.spawnList) this.memory.spawnList = []
+        return this.memory.spawnList.indexOf(taskName) > -1
+    }
+
+    /**
+     * 从生产队列中取出任务进行孵化
+     * @todo 这里写死了房间的 Spawn名字，需要改成自动获取
+     * 
+     * @returns OK| ERR_NOT_ENOUGH_ENERGY| ERR_BUSY
+     */
+    public doSpawnTask(): ScreepsReturnCode {
+        if (!this.memory.spawnList || this.memory.spawnList.length == 0) {
+            return ERR_NOT_FOUND
+        }
+        else {
+            let spawn = Game.spawns['Spawn1']
+            if (spawn && !spawn.spawning) {
+                let creepName = this.memory.spawnList[0]
+                let creepConfig = Memory.creepConfigs[creepName]
+                if (creepConfig) {
+
+                    if(creepConfig.bodys instanceof Array<BodyPartConstant>) {
+                        let returnCode = spawn.spawnCreep(creepConfig.bodys as BodyPartConstant[], creepName, { memory: {'role': creepConfig.role}} )
+                        if(returnCode == OK) {
+                            this.memory.spawnList.shift()
+                            return returnCode
+                        }
+                    } 
+                }
+            }
+            else {
+                return ERR_INVALID_ARGS
+            }
+        } 
+    }
+
+
 
     /** 
      * @description

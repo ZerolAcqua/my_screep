@@ -146,8 +146,8 @@ const roleBuilder: FuncDict = {
         }
 
         else {
-            creep.harvestEnergy(1);
-            // creep.withdrawEnergy()
+            // creep.harvestEnergy(1);
+            creep.withdrawEnergy()
         }
     }
 };

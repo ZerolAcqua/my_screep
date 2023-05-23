@@ -49,7 +49,7 @@ export const manageRespawn = {
 
 
         // repairer respawn
-        else if (repairers.length < 1) {
+        else if (repairers.length < 0) {
             var newName = 'Repairer' + Game.time;
             console.log('Trying to spawn new repairer: ' + newName);
             Game.spawns['Spawn1'].spawnCreep(
@@ -74,9 +74,9 @@ export const manageRespawn = {
             var newName = 'Builder' + Game.time;
             console.log('Trying to spawn new builder: ' + newName);
             Game.spawns['Spawn1'].spawnCreep([
-                WORK, WORK,
-                CARRY, CARRY,
-                MOVE, MOVE], newName,
+                WORK, WORK, WORK, 
+                CARRY, CARRY,CARRY,
+                MOVE, MOVE, MOVE], newName,
                 { memory: { role: 'builder' } });
         }
 

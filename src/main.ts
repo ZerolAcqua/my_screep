@@ -8,11 +8,20 @@ import {
 } from './utils'
 
 // 引入重生管理
-import { manageRespawn } from './manage/manage.Respawn'
+import { manageRespawn } from './manage/respawn'
 
 
 
 import mount from './mount'
+
+import {creepConfigs} from '@/config'
+import {creepApi} from '@/manage/creepApi'
+
+
+for (const config of creepConfigs) {
+    creepApi.add(config.configName, config.role as CreepRoleConstant, config.data, config.spawnRoom, config.bodys)
+}
+
 
 // 游戏入口函数
 export const loop = errorMapper(() => {
