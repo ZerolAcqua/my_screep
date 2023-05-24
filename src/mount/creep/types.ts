@@ -7,19 +7,23 @@ interface Creep {
     /**
      * 采集能量
      * @param number sourcreId 能量源的 id
+     * @deprecated
      */
     harvestEnergy(sourcreId: number): void
     /**
      * 采能者采集能量
      * @param number sourcreId 能量源的 id
+     * @deprecated
      */
     digEnergy(sourcreId: number): void
     /**
      * 搬运者收集能量到 Storage
+     * @deprecated
      */
     gatherEnergy(): void
     /**
      * 收取能量
+     * @deprecated
      */
     withdrawEnergy(): void
 

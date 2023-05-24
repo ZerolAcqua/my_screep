@@ -42,6 +42,9 @@ interface Memory {
     }
 }
 
+//
+type StructureStore = StructureContainer|StructureStorage|StructureLink|StructureTerminal
+
 
 // 所有的 creep 角色
 type CreepRoleConstant = BaseRoleConstant | AdvancedRoleConstant
@@ -82,7 +85,7 @@ interface CarrierData {
     // 要采集的 source id
     sourceId: string
     // 把采集到的资源存到哪里存在哪里
-    targetId: string
+    targetId?: string
 }
 
 /**

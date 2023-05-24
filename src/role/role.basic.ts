@@ -25,19 +25,52 @@ const roleHarvester: FuncDict = {
     }
 };
 
-/** 采能者角色
-*   无脑采集能源
-*/
+/** 
+ * @description 
+ * 采能者角色：无脑采集能源
+ * @finish
+ */
 const roleDigger: FuncDict = {
+
+    /** 
+     * @param {Creep} creep 
+     */
+    prepare: function (creep: Creep): void {
+
+        const config = Memory.creepConfigs[creep.name]
+        const data  = config.data as WorkerData
+        const source = Game.getObjectById(data.sourceId) as Source|Mineral
+
+        const pos = source.pos.findInRange(FIND_STRUCTURES,1,
+             {filter: { structureType: STRUCTURE_CONTAINER }})[0].pos;
+
+
+        if (creep.pos.x != pos.x || creep.pos.y != pos.y) {
+            creep.moveTo(pos)
+        }
+        else {
+            creep.memory.ready = true
+        }
+    },
+
     /** 
      * @param {Creep} creep 
      */
     run: function (creep: Creep) {
-        creep.digEnergy(0)
+        const config = Memory.creepConfigs[creep.name]
+        const data  = config.data as WorkerData
+        const source = Game.getObjectById(data.sourceId) as Source|Mineral
+        creep.harvest(source)
     }
 };
 
-/** 搬运者角色
+/** 
+ * @description 
+ * 搬运者角色，目前只考虑搬运，不考虑采集
+ * @todo
+ * 
+ * 
+ * 
 */
 const roleCarrier: FuncDict = {
     /** 
@@ -58,7 +91,18 @@ const roleCarrier: FuncDict = {
             creep.fillSpawnEngery() || creep.fillTower() || creep.fillStorage()
         }
         else {
-            creep.gatherEnergy()
+            const config = Memory.creepConfigs[creep.name]
+            const data  = config.data as CarrierData
+            const source = Game.getObjectById(data.sourceId) as StructureStore
+
+            if(!creep.pos.inRangeTo(source.pos,1))
+            {
+                creep.moveTo(source)
+                return
+            }
+
+            const sourceTypes = Object.keys (source.store)
+            creep.withdraw(source,sourceTypes[0] as ResourceConstant) 
         }
     }
 };
@@ -67,6 +111,19 @@ const roleCarrier: FuncDict = {
  * 升级者角色
  */
 const roleUpgrader: FuncDict = {
+
+    /** 
+     * @param {Creep} creep 
+     */
+    prepare: function (creep: Creep): void {
+        if (creep.pos.x != 32 || creep.pos.y != 22) {
+            creep.moveTo(32, 22)
+        }
+        else {
+            creep.memory.ready = true
+        }
+
+    },
 
     /** @param {Creep} creep **/
     run: function (creep: Creep) {
@@ -95,18 +152,7 @@ const roleUpgrader: FuncDict = {
             creep.withdraw(Game.getObjectById(creep.room.memory['upgradeLinkId']) as Structure, RESOURCE_ENERGY)
         }
     },
-    /** 
-     * @param {Creep} creep 
-     */
-    prepare: function (creep: Creep): void {
-        if (creep.pos.x != 32 || creep.pos.y != 22) {
-            creep.moveTo(32, 22)
-        }
-        else {
-            creep.memory.ready = true
-        }
 
-    }
 
 };
 

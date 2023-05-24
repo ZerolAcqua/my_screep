@@ -32,10 +32,7 @@ export const loop = errorMapper(() => {
 
     // 生成 pixel
     generatePixel()
-
-
-    // 清理 creeps 内存
-    clearDeadCreeps()
+    
 
     // 房间运作
     const rooms = Object.values(Game.rooms) as Room[]
