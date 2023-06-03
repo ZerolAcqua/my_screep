@@ -2,7 +2,7 @@ interface Creep {
     /**
     * Creep 执行工作
     */
-    work(): void 
+    work(): void
 
     /**
      * 采集能量
@@ -39,12 +39,16 @@ interface Creep {
      * 填充 storage
      */
     fillStorage(): boolean
-    
+    /**
+     * 填充 Terminal
+     */
+    fillTerminal(): boolean
+
     /** 
      * 建造建筑
      */
     buildStructure(): boolean
-    
+
     /**
      * 修理 container
      */

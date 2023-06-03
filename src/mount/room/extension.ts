@@ -1,3 +1,6 @@
+import { manageRespawn } from "@/manage/respawn";
+import { log } from "@/utils";
+
 /**
  * @description
  * 自定义的 Storage 的拓展
@@ -26,6 +29,7 @@ export class RoomExtension extends Room {
             structure.work();
         })
 
+        this.addBuildTask();
         this.doSpawnTask();
 
         this.defendEnemy() || this.repairBuilding();
@@ -62,8 +66,8 @@ export class RoomExtension extends Room {
 
     /**
      * 从生产队列中取出任务进行孵化
-     * @todo 这里写死了房间的 Spawn名字，需要改成自动获取
-     * 
+     * @todo 这里写死了房间的 Spawn 名字，需要改成自动获取
+     * @bug
      * @returns OK| ERR_NOT_ENOUGH_ENERGY| ERR_BUSY
      */
     public doSpawnTask(): ScreepsReturnCode {
@@ -77,21 +81,43 @@ export class RoomExtension extends Room {
                 let creepConfig = Memory.creepConfigs[creepName]
                 if (creepConfig) {
 
-                    if(creepConfig.bodys instanceof Array<BodyPartConstant>) {
-                        let returnCode = spawn.spawnCreep(creepConfig.bodys as BodyPartConstant[], creepName, { memory: {'role': creepConfig.role}} )
-                        if(returnCode == OK) {
+                    if (creepConfig.bodys instanceof Array<BodyPartConstant>) {
+                        let returnCode = spawn.spawnCreep(creepConfig.bodys as BodyPartConstant[], creepName, { memory: { 'role': creepConfig.role } })
+                        if (returnCode == OK) {
                             this.memory.spawnList.shift()
                             return returnCode
                         }
-                    } 
+                        else if (returnCode == ERR_NAME_EXISTS) {
+                            this.memory.spawnList.shift()
+                        }
+                    }
                 }
             }
             else {
                 return ERR_INVALID_ARGS
             }
-        } 
+        }
     }
 
+
+    /**
+     * @description
+     * 在需要孵化建造者时进行孵化
+     * @deprecated 这个函数有点套娃，需要重构
+     * @todo 这里判断 builder 是否存在应该分离一个函数出来
+     *      而不是直接找叫 builder 的 creep
+     * @bug
+     * 
+     * @returns OK| ERR_NOT_ENOUGH_ENERGY| ERR_BUSY
+     */
+    public addBuildTask() {
+        if (this.find(FIND_CONSTRUCTION_SITES).length > 0
+            && !this.hasSpawnTask('builder')
+            && !("builder" in Game.creeps)) {
+            this.addSpawnTask('builder')
+            log(`准备孵化 builder 建造建筑`, ['creepController'])
+        }
+    }
 
 
     /** 

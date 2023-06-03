@@ -17,7 +17,7 @@ import mount from './mount'
 import {creepConfigs} from '@/config'
 import {creepApi} from '@/manage/creepApi'
 
-
+// 临时解决方案
 for (const config of creepConfigs) {
     creepApi.add(config.configName, config.role as CreepRoleConstant, config.data, config.spawnRoom, config.bodys)
 }

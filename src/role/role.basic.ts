@@ -22,6 +22,13 @@ const roleHarvester: FuncDict = {
         else {
             creep.harvestEnergy(0)
         }
+    },
+    /**
+     * 该 creep 是否需要重生
+     */
+    isNeed(room: Room, name: string, creepMemory: CreepMemory) {
+        if (Object.keys(Game.creeps).length > 2) return false
+        else return true
     }
 };
 
@@ -38,11 +45,11 @@ const roleDigger: FuncDict = {
     prepare: function (creep: Creep): void {
 
         const config = Memory.creepConfigs[creep.name]
-        const data  = config.data as WorkerData
-        const source = Game.getObjectById(data.sourceId) as Source|Mineral
+        const data = config.data as WorkerData
+        const source = Game.getObjectById(data.sourceId) as Source | Mineral
 
-        const pos = source.pos.findInRange(FIND_STRUCTURES,1,
-             {filter: { structureType: STRUCTURE_CONTAINER }})[0].pos;
+        const pos = source.pos.findInRange(FIND_STRUCTURES, 1,
+            { filter: { structureType: STRUCTURE_CONTAINER } })[0].pos;
 
 
         if (creep.pos.x != pos.x || creep.pos.y != pos.y) {
@@ -58,10 +65,13 @@ const roleDigger: FuncDict = {
      */
     run: function (creep: Creep) {
         const config = Memory.creepConfigs[creep.name]
-        const data  = config.data as WorkerData
-        const source = Game.getObjectById(data.sourceId) as Source|Mineral
+        const data = config.data as WorkerData
+        const source = Game.getObjectById(data.sourceId) as Source | Mineral
         creep.harvest(source)
-    }
+    },
+    /**
+     * 该 creep 需要重生
+     */
 };
 
 /** 
@@ -88,26 +98,29 @@ const roleCarrier: FuncDict = {
 
 
         if (creep.memory.working == true) {
-            creep.fillSpawnEngery() || creep.fillTower() || creep.fillStorage()
+            creep.fillSpawnEngery() || creep.fillTower() || creep.fillStorage() || creep.fillTerminal()
         }
         else {
             const config = Memory.creepConfigs[creep.name]
-            const data  = config.data as CarrierData
+            const data = config.data as CarrierData
             const source = Game.getObjectById(data.sourceId) as StructureStore
 
-            if(!creep.pos.inRangeTo(source.pos,1))
-            {
+            if (!creep.pos.inRangeTo(source.pos, 1)) {
                 creep.moveTo(source)
                 return
             }
 
-            const sourceTypes = Object.keys (source.store)
-            creep.withdraw(source,sourceTypes[0] as ResourceConstant) 
+            const sourceTypes = Object.keys(source.store)
+            creep.withdraw(source, sourceTypes[0] as ResourceConstant)
         }
-    }
+    },
+    /**
+     * 该 creep 需要重生
+     */
 };
 
 /**
+ * @description 
  * 升级者角色
  */
 const roleUpgrader: FuncDict = {
@@ -116,6 +129,7 @@ const roleUpgrader: FuncDict = {
      * @param {Creep} creep 
      */
     prepare: function (creep: Creep): void {
+        // 这里的逻辑要更改，不能直接写死坐标
         if (creep.pos.x != 32 || creep.pos.y != 22) {
             creep.moveTo(32, 22)
         }
@@ -152,14 +166,19 @@ const roleUpgrader: FuncDict = {
             creep.withdraw(Game.getObjectById(creep.room.memory['upgradeLinkId']) as Structure, RESOURCE_ENERGY)
         }
     },
+    /**
+     * 该 creep 需要重生
+     */
 
 
 };
 
 
-/** 建造者角色
-* 
-*/
+/** 
+ * @description
+ * 建造者角色
+ * 
+ */
 const roleBuilder: FuncDict = {
     /** @param {Creep} creep **/
     run: function (creep: Creep, resourceId = 1) {
@@ -193,13 +212,27 @@ const roleBuilder: FuncDict = {
 
         else {
             // creep.harvestEnergy(1);
-            creep.withdrawEnergy()
+            // creep.withdrawEnergy()
+            const source = Game.getObjectById(creep.room.memory['storageId']) as Structure
+            if (!creep.pos.inRangeTo(source.pos, 1)) {
+                creep.moveTo(source)
+                return
+            }
+            creep.withdraw(source, RESOURCE_ENERGY)
         }
+    },
+    /**
+     * 该 creep 是否需要重生
+     */
+    isNeed(room: Room, name: string, creepMemory: CreepMemory) {
+        return room.find(FIND_CONSTRUCTION_SITES).length > 0
     }
 };
 
 /**
+ * @description
  * 修理者角色
+ * @danger 还未适配新的 creepConfig
  */
 
 const roleRepairer: FuncDict = {
@@ -269,7 +302,10 @@ const roleRepairer: FuncDict = {
             // }
             creep.withdrawEnergy()
         }
-    }
+    },
+    /**
+     * 该 creep 需要重生
+     */
 };
 
 

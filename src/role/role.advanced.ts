@@ -37,7 +37,10 @@ const roleProcessor: FuncDict = {
             creep.memory.ready = true
         }
 
-    }
+    },
+    /**
+     * 该 creep 需要重生
+     */
 };
 
 export const advancedRoles: { [key: string]: FuncDict } = {

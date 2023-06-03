@@ -20,6 +20,11 @@ interface RoomMemory {
     storageId?: string
 
     /**
+     * Storage id 
+     */
+    terminalId?: string
+
+    /**
      * 
      */
     spawnList: string[]
@@ -43,7 +48,7 @@ interface Room {
      * 房间孵化
      * @param creepName 要孵化的 creep 名称
      */
-    addSpawnTask(creepName: string): number|ERR_NAME_EXISTS
+    addSpawnTask(creepName: string): number | ERR_NAME_EXISTS
 
     /**
      * 检查生产队列中是否包含指定任务
