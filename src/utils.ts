@@ -27,6 +27,24 @@ export const clearDeadCreeps = function () {
 }
 
 /**
+ * @author: ZerolAcqua
+ * @description: 生成身体部件数组
+ * @param bodyPartDict 身体部件字典，字典的键为身体部件常量，值为对应的数量
+ */
+
+export const generBodyParts = function (bodyPartDict: {[key in BodyPartConstant]?: number}): BodyPartConstant[] {
+    let bodyParts: BodyPartConstant[] = []
+    for (let bodyPart in bodyPartDict) {
+        for (let i = 0; i < bodyPartDict[bodyPart]; i++) {
+            bodyParts.push(bodyPart as BodyPartConstant)
+        }
+    }
+    return bodyParts
+}
+
+
+
+/**
  * @author HoPGoldy
  * 在绘制控制台信息时使用的颜色
  */

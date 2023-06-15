@@ -1,5 +1,6 @@
 import { manageRespawn } from "@/manage/respawn";
 import { log } from "@/utils";
+import { creepApi } from "@/manage/creepApi";
 
 /**
  * @description
@@ -91,9 +92,17 @@ export class RoomExtension extends Room {
                             this.memory.spawnList.shift()
                         }
                     }
+                    else {
+                        console.log("I didn't consider this situation")
+                    }
+                }
+                else {
+                    console.log("creepConfig not found")
+                    this.memory.spawnList.shift()
                 }
             }
             else {
+                console.log("spawn not found or busy")
                 return ERR_INVALID_ARGS
             }
         }
@@ -114,6 +123,18 @@ export class RoomExtension extends Room {
         if (this.find(FIND_CONSTRUCTION_SITES).length > 0
             && !this.hasSpawnTask('builder')
             && !("builder" in Game.creeps)) {
+            creepApi.add('builder',
+                'builder',
+                {
+                    "sourceId": "6448fd1495671c3b6ec1b799"
+                },
+                'W27S34',
+                [
+                    WORK, WORK, WORK, WORK,
+                    CARRY, CARRY,
+                    MOVE, MOVE, MOVE
+                ]
+            )
             this.addSpawnTask('builder')
             log(`准备孵化 builder 建造建筑`, ['creepController'])
         }
@@ -175,8 +196,7 @@ export class RoomExtension extends Room {
             targets = this.find(FIND_STRUCTURES, {
                 filter: (structure) => {
                     // 初始值为 0.01
-                    return (structure.hits < 0.05
-                        * structure.hitsMax && structure.structureType == STRUCTURE_RAMPART);
+                    return (structure.hits < 1500000 && structure.structureType == STRUCTURE_RAMPART);
                 }
             });
         }
