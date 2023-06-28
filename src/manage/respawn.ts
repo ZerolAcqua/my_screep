@@ -1,4 +1,4 @@
-import { log } from "@/utils"
+import { log } from "@/modules/utils"
 import { creepApi } from "@/manage/creepApi"
 import { roles } from "@/role";
 
@@ -41,20 +41,15 @@ export const manageRespawn = {
             }
         }
     },
-
-
-
-    add: function (configName: string, role: CreepRoleConstant, data: CreepData, room: string, bodys: BodyAutoConfigConstant | BodyPartConstant[]){
+    add: function (configName: string, role: CreepRoleConstant, data: CreepData, room: string, bodys: BodyAutoConfigConstant | BodyPartConstant[]) {
         log(creepApi.add(configName, role, data, room, bodys))
         const name = configName
         if (name in Game.creeps) {
-            return 
+            return
         }
-        else{
+        else {
             const spawnRoom = Game.rooms[room]
             spawnRoom.addSpawnTask(name)
         }
     }
-
-
 };

@@ -1,23 +1,49 @@
 /**
  * @description 打印 hello world
  */
-export const sayHello = function () {
+export function sayHello() {
     console.log('hello world')
 }
 
 /**
  * @description 生成 pixel
  */
-export const generatePixel = function (): OK | ERR_NOT_ENOUGH_RESOURCES {
+export function generatePixel(): OK | ERR_NOT_ENOUGH_RESOURCES {
     if (Game.cpu.bucket == PIXEL_CPU_COST) return Game.cpu.generatePixel();
     else return ERR_NOT_ENOUGH_RESOURCES
 }
+
+
+/**
+ * @author HoPGoldy
+ * @abstract 全局统计信息扫描器
+ * @description
+ * 负责搜集关于 cpu、memory、GCL、GPL 的相关信息
+ */
+export function stateScanner(): void {
+    if (Game.time % 20) return
+
+    if (!Memory.stats) Memory.stats = { rooms: {} }
+
+    // 统计 GCL / GPL 的升级百分比和等级
+    Memory.stats.gcl = (Game.gcl.progress / Game.gcl.progressTotal) * 100,
+        Memory.stats.gclLevel = Game.gcl.level,
+        Memory.stats.gpl = (Game.gpl.progress / Game.gpl.progressTotal) * 100,
+        Memory.stats.gplLevel = Game.gpl.level,
+        // CPU 的当前使用量
+        Memory.stats.cpu = Game.cpu.getUsed(),
+        // bucket 当前剩余量
+        Memory.stats.bucket = Game.cpu.bucket
+    // 统计剩余钱数
+    Memory.stats.credit = Game.market.credits
+}
+
 
 /**
  * @deprecated
  * @description 清理死去的 creep 的内存
  */
-export const clearDeadCreeps = function () {
+export function clearDeadCreeps () {
     for (var name in Memory.creeps) {
         if (!Game.creeps[name]) {
             delete Memory.creeps[name];
@@ -27,12 +53,11 @@ export const clearDeadCreeps = function () {
 }
 
 /**
- * @author: ZerolAcqua
- * @description: 生成身体部件数组
+ * @author ZerolAcqua
+ * @description 生成身体部件数组
  * @param bodyPartDict 身体部件字典，字典的键为身体部件常量，值为对应的数量
  */
-
-export const generBodyParts = function (bodyPartDict: {[key in BodyPartConstant]?: number}): BodyPartConstant[] {
+export function generBodyParts (bodyPartDict: { [key in BodyPartConstant]?: number }): BodyPartConstant[] {
     let bodyParts: BodyPartConstant[] = []
     for (let bodyPart in bodyPartDict) {
         for (let i = 0; i < bodyPartDict[bodyPart]; i++) {
@@ -42,7 +67,14 @@ export const generBodyParts = function (bodyPartDict: {[key in BodyPartConstant]
     return bodyParts
 }
 
-
+/**
+ * @author ZerolAcqua
+ * @description 判断身体部件参数的类型
+ * @param bodys 身体部件
+ */
+export function isBodyPartConstantArray(bodys: BodyPartConstant[] | BodyAutoConfigConstant): bodys is BodyPartConstant[] {
+    return Array.isArray(bodys);
+}
 
 /**
  * @author HoPGoldy
@@ -68,7 +100,7 @@ export function colorful(content: string, colorName: Colors = null, bolder: bool
     const colorStyle = colorName ? `color: ${colors[colorName]};` : ''
     const bolderStyle = bolder ? 'font-weight: bolder;' : ''
 
-    return `<text style="${[ colorStyle, bolderStyle ].join(' ')}">${content}</text>`
+    return `<text style="${[colorStyle, bolderStyle].join(' ')}">${content}</text>`
 }
 
 /**
@@ -104,7 +136,7 @@ export function log(content: string, prefixes: string[] = [], color: Colors = nu
  * @param obj1 要挂载到的对象
  * @param obj2 要进行挂载的对象
  */
-export const assignPrototype = function (obj1: { [key: string]: any }, obj2: { [key: string]: any }) {
+export function assignPrototype (obj1: { [key: string]: any }, obj2: { [key: string]: any }) {
     Object.getOwnPropertyNames(obj2.prototype).forEach(key => {
         if (key.includes('Getter')) {
             Object.defineProperty(obj1.prototype, key.split('Getter')[0], {

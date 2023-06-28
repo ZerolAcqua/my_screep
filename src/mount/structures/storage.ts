@@ -4,18 +4,28 @@
  */
 export class StorageExtension extends StructureStorage {  
     /**
-     * 运作
+     * @description 运作
      */
     public work(): void {
+        this.stateScanner()
     }
 
     /**
-     * 回调 - 建造完成
+     * @description 回调 - 建造完成
      * 分配职责
      */
     public onBuildComplete(): void {
         this.room.memory.storageId=this.id
     }
+
+    /**
+     * @description 统计自己存储中的剩余能量
+     */
+        private stateScanner(): void {
+            if (Game.time % 20) return
+            if (!Memory.stats.rooms[this.room.name]) Memory.stats.rooms[this.room.name] = {}
+            Memory.stats.rooms[this.room.name].energy = this.store[RESOURCE_ENERGY]
+        }
 }
 
 

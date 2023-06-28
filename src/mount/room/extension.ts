@@ -1,6 +1,7 @@
 import { manageRespawn } from "@/manage/respawn";
-import { log } from "@/utils";
+import { log } from "@/modules/utils";
 import { creepApi } from "@/manage/creepApi";
+import {isBodyPartConstantArray} from "@/modules/utils";
 
 /**
  * @description
@@ -81,8 +82,8 @@ export class RoomExtension extends Room {
                 let creepName = this.memory.spawnList[0]
                 let creepConfig = Memory.creepConfigs[creepName]
                 if (creepConfig) {
-
-                    if (creepConfig.bodys instanceof Array<BodyPartConstant>) {
+                    // FIXME
+                    if (isBodyPartConstantArray(creepConfig.bodys)) { 
                         let returnCode = spawn.spawnCreep(creepConfig.bodys as BodyPartConstant[], creepName, { memory: { 'role': creepConfig.role } })
                         if (returnCode == OK) {
                             this.memory.spawnList.shift()

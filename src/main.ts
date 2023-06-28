@@ -4,8 +4,8 @@ import { errorMapper } from './modules/errorMapper'
 // 引入其他功能模块
 import {
     generatePixel,
-    clearDeadCreeps
-} from './utils'
+    stateScanner
+} from './modules/utils'
 
 // 引入重生管理
 import { manageRespawn } from './manage/respawn'
@@ -38,14 +38,16 @@ export const loop = errorMapper(() => {
     const rooms = Object.values(Game.rooms) as Room[]
     rooms.forEach((room) => { room.work() })
 
-
-
     // creep 数量控制
     manageRespawn.work();
 
     // creep 运转
     const creeps = Object.values(Game.creeps) as Creep[]
     creeps.forEach((creep) => { creep.work() })
+
+
+    // 全局统计数据
+    stateScanner()
 })
 
 

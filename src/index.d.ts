@@ -39,6 +39,42 @@ interface Memory {
             // 为 string 时则自动规划身体部件，为 BodyPartConstant[] 时则强制生成该身体配置
             bodys: BodyAutoConfigConstant | BodyPartConstant[]
         }
+    },
+    // 全局统计信息
+    stats: {
+        // GCl/GPL 升级百分比
+        gcl?: number
+        gclLevel?: number
+        gpl?: number
+        gplLevel?: number
+        // CPU 当前数值及百分比
+        cpu?: number
+        // bucket 当前数值
+        bucket?: number
+        // 当前还有多少钱
+        credit?: number
+
+        /**
+        * 房间内的数据统计
+        */
+        rooms: {
+            [roomName: string]: {
+                // storage 中的能量剩余量
+                energy?: number
+                // 终端中的 power 数量
+                power?: number
+                // nuker 的资源存储量
+                nukerEnergy?: number
+                nukerG?: number
+                nukerCooldown?: number
+                // 控制器升级进度，只包含没有到 8 级的
+                controllerRatio?: number
+                controllerLevel?: number
+
+                // 其他种类的资源数量，由 factory 统计
+                [commRes: string]: number
+            }
+        }
     }
 }
 

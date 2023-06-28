@@ -1,4 +1,4 @@
-import { assignPrototype } from '@/utils'
+import { assignPrototype } from '@/modules/utils'
 import { RoomExtension } from './extension'
 
 // 挂载拓展到房间原型
