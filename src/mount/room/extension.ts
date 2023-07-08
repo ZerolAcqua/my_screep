@@ -35,6 +35,10 @@ export class RoomExtension extends Room {
         this.doSpawnTask();
 
         this.defendEnemy() || this.repairBuilding();
+
+        if (!(Game.time % 20)) { 
+            this.stateScanner()
+        }
     }
 
     /**
@@ -77,35 +81,40 @@ export class RoomExtension extends Room {
             return ERR_NOT_FOUND
         }
         else {
-            let spawn = Game.spawns['Spawn1']
-            if (spawn && !spawn.spawning) {
-                let creepName = this.memory.spawnList[0]
-                let creepConfig = Memory.creepConfigs[creepName]
-                if (creepConfig) {
-                    // FIXME
-                    if (isBodyPartConstantArray(creepConfig.bodys)) { 
-                        let returnCode = spawn.spawnCreep(creepConfig.bodys as BodyPartConstant[], creepName, { memory: { 'role': creepConfig.role } })
-                        if (returnCode == OK) {
-                            this.memory.spawnList.shift()
-                            return returnCode
+            // let spawn = Game.spawns['Spawn1']
+            let spawns = Object.values(Game.spawns).filter((spawn)=>(spawn.room.name == this.name)) as StructureSpawn[]
+            for (const spawn of spawns) {
+                if (spawn && !spawn.spawning) {
+                    let creepName = this.memory.spawnList[0]
+                    let creepConfig = Memory.creepConfigs[creepName]
+                    if (creepConfig) {
+                        // FIXME
+                        if (isBodyPartConstantArray(creepConfig.bodys)) { 
+                            let returnCode = spawn.spawnCreep(creepConfig.bodys as BodyPartConstant[], creepName, { memory: { 'role': creepConfig.role } })
+                            if (returnCode == OK) {
+                                this.memory.spawnList.shift()
+                                console.log(`spawn ${spawn.name} spawn ${creepName} successfully`)
+                                continue
+                            }
+                            else if (returnCode == ERR_NAME_EXISTS) {
+                                this.memory.spawnList.shift()
+                            }
                         }
-                        else if (returnCode == ERR_NAME_EXISTS) {
-                            this.memory.spawnList.shift()
+                        else {
+                            console.log("I didn't consider this situation")
                         }
                     }
                     else {
-                        console.log("I didn't consider this situation")
+                        console.log(`${creepName}'s creepConfig: \n ${creepConfig} \n not found`)
+                        this.memory.spawnList.shift()
                     }
                 }
                 else {
-                    console.log("creepConfig not found")
-                    this.memory.spawnList.shift()
+                    console.log(`spawn ${spawn.name} not found or busy`)   
+                    continue
                 }
             }
-            else {
-                console.log("spawn not found or busy")
-                return ERR_INVALID_ARGS
-            }
+            return ERR_INVALID_ARGS
         }
     }
 
@@ -223,5 +232,16 @@ export class RoomExtension extends Room {
         }
         return true;
     }
+
+    /**
+     * @description 统计房间信息
+     * 
+     */
+        private stateScanner(){
+            if (!Memory.stats.rooms[this.name]) Memory.stats.rooms[this.name] = {}
+    
+            // 统计房间内爬的数量
+            Memory.stats.rooms[this.name].creepNum = this.find(FIND_MY_CREEPS).length
+        }
 
 }

@@ -35,7 +35,7 @@ export const loop = errorMapper(() => {
     
 
     // 房间运作
-    const rooms = Object.values(Game.rooms) as Room[]
+    const rooms = Object.values(Game.rooms).filter((room)=>( room.controller && room.controller.my )) as Room[]
     rooms.forEach((room) => { room.work() })
 
     // creep 数量控制

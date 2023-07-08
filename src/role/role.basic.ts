@@ -6,16 +6,7 @@ const roleHarvester: FuncDict = {
      * @param {Creep} creep 
      */
     run: function (creep: Creep) {
-        if (creep.memory.working && creep.store[RESOURCE_ENERGY] == 0) {
-            creep.memory.working = false;
-            creep.say('harvest');
-        }
-        if (!creep.memory.working && creep.store.getFreeCapacity() == 0) {
-            creep.memory.working = true;
-            creep.say('carrying');
-        }
-
-        if (creep.memory.working == true) {
+        if (creep.shouldWork()) {
             creep.fillSpawnEngery()
 
         }
@@ -34,7 +25,7 @@ const roleHarvester: FuncDict = {
 
 /** 
  * @description 
- * 采能者角色：无脑采集能源
+ * 采能者角色：采集能源
  * @finish
  */
 const roleDigger: FuncDict = {
@@ -50,6 +41,9 @@ const roleDigger: FuncDict = {
 
         const pos = source.pos.findInRange(FIND_STRUCTURES, 1,
             { filter: { structureType: STRUCTURE_CONTAINER } })[0].pos;
+
+        
+        creep.memory.target
 
 
         if (creep.pos.x != pos.x || creep.pos.y != pos.y) {
@@ -87,17 +81,7 @@ const roleCarrier: FuncDict = {
      * @param {Creep} creep 
      */
     run: function (creep: Creep) {
-        if (creep.memory.working && creep.store[RESOURCE_ENERGY] == 0) {
-            creep.memory.working = false;
-            creep.say('fetching');
-        }
-        if (!creep.memory.working && creep.store.getFreeCapacity() == 0) {
-            creep.memory.working = true;
-            creep.say('carrying');
-        }
-
-
-        if (creep.memory.working == true) {
+        if (creep.shouldWork()) {
             creep.fillSpawnEngery() || creep.fillTower() || creep.fillStorage() || creep.fillTerminal()
         }
         else {
@@ -141,16 +125,7 @@ const roleUpgrader: FuncDict = {
 
     /** @param {Creep} creep **/
     run: function (creep: Creep) {
-        if (creep.memory.working && creep.store[RESOURCE_ENERGY] == 0) {
-            creep.memory.working = false;
-        }
-        if (!creep.memory.working && creep.store.getFreeCapacity() == 0) {
-            creep.memory.working = true;
-            creep.say('upgrade');
-        }
-
-
-        if (creep.memory.working) {
+        if (creep.shouldWork()) {
             if (creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
                 // creep.moveTo(creep.room.controller, {visualizePathStyle: {stroke: '#ffffff'}});
                 creep.moveTo(creep.room.getPositionAt(32, 22), { visualizePathStyle: { stroke: '#ffffff' } });
@@ -183,16 +158,8 @@ const roleBuilder: FuncDict = {
     /** @param {Creep} creep **/
     run: function (creep: Creep, resourceId = 1) {
 
-        if (creep.memory.working && creep.store[RESOURCE_ENERGY] == 0) {
-            creep.memory.working = false;
-            creep.say('harvest');
-        }
-        if (!creep.memory.working && creep.store.getFreeCapacity() == 0) {
-            creep.memory.working = true;
-            creep.say('build');
-        }
 
-        if (creep.memory.working) {
+        if (creep.shouldWork()) {
             if (creep.buildStructure() == false) {
                 var targets = creep.room.find(FIND_STRUCTURES, {
                     filter: (structure) => {
@@ -209,7 +176,6 @@ const roleBuilder: FuncDict = {
                 }
             }
         }
-
         else {
             // creep.harvestEnergy(1);
             // creep.withdrawEnergy()

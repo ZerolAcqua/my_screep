@@ -6,13 +6,7 @@ const roleProcessor: FuncDict = {
      * @param {Creep} creep 
      */
     run: function (creep: Creep): void {
-        if (creep.memory.working && creep.store[RESOURCE_ENERGY] == 0) {
-            creep.memory.working = false;
-        }
-        if (!creep.memory.working && creep.store.getFreeCapacity() == 0) {
-            creep.memory.working = true;
-        }
-        if (creep.memory.working == true) {
+        if (creep.shouldWork()) {
             creep.transfer(Game.getObjectById(creep.room.memory['centerLinkId']) as Structure, RESOURCE_ENERGY)
         }
         else {
@@ -43,7 +37,29 @@ const roleProcessor: FuncDict = {
      */
 };
 
+/** 资源分配者角色
+*   用于从中央集群填充资源的角色
+*/
+const roleDistributor: FuncDict = {
+    /** 
+     * @param {Creep} creep 
+     */
+    run: function (creep: Creep): void {
+        if (creep.shouldWork()) {
+            // TODO: 按规划路径分配资源
+        }
+        else {
+            // TODO: 从中央集群的 Storage 获取资源
+        }
+    }
+    /**
+     * 该 creep 需要重生
+     */
+};
+
+
 export const advancedRoles: { [key: string]: FuncDict } = {
     "processor": roleProcessor,
+    "distributor": roleDistributor,
 }
 

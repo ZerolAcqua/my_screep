@@ -1,8 +1,3 @@
-// // 将拓展签入 Creep 原型
-// export function mountCreep() {
-//     _.assign(Creep.prototype, creepExtension)
-// }
-
 // 引入角色
 import { roles } from '@/role'
 
@@ -21,6 +16,50 @@ export class CreepExtension extends Creep {
             roles[this.memory.role].run(this)
     }
 
+
+    // Creep 的状态是否应该继续工作
+    shouldWork(): boolean {
+        if (this.memory.working && this.store[RESOURCE_ENERGY] == 0) {
+            this.memory.working = false
+        }
+        else if (!this.memory.working && this.store.getFreeCapacity() == 0) {
+            this.memory.working = true
+        }
+        return this.memory.working
+    }
+
+
+    // 寻找指定位置附近的储物点，优先级为 Storage > Link > Container
+    findStore(pos: RoomPosition): String | null {
+        var targets = pos.findInRange(FIND_STRUCTURES, 1, {
+            filter: (structure) => {
+                return structure.structureType == STRUCTURE_STORAGE &&
+                    structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
+            }
+        });
+        if (targets.length > 0) {
+            return targets[0].id
+        }
+        targets = pos.findInRange(FIND_STRUCTURES, 1, {
+            filter: (structure) => {
+                return structure.structureType == STRUCTURE_LINK &&
+                    structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
+            }
+        });
+        if (targets.length > 0) {
+            return targets[0].id
+        }
+        targets = pos.findInRange(FIND_STRUCTURES, 1, {
+            filter: (structure) => {
+                return structure.structureType == STRUCTURE_CONTAINER &&
+                    structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
+            }
+        });
+        if (targets.length > 0) {
+            return targets[0].id
+        }
+        return null
+    }
 
     // 采集能量
     harvestEnergy(sourcreId = 0): void {

@@ -70,6 +70,7 @@ interface Memory {
                 // 控制器升级进度，只包含没有到 8 级的
                 controllerRatio?: number
                 controllerLevel?: number
+                creepNum?: number
 
                 // 其他种类的资源数量，由 factory 统计
                 [commRes: string]: number
