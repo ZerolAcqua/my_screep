@@ -133,7 +133,7 @@ export class RoomExtension extends Room {
         if (this.find(FIND_CONSTRUCTION_SITES).length > 0
             && !this.hasSpawnTask('builder')
             && !("builder" in Game.creeps)) {
-            creepApi.add('builder',
+            creepApi.add('builder1',
                 'builder',
                 {
                     "sourceId": "6448fd1495671c3b6ec1b799"

@@ -25,7 +25,27 @@ interface RoomMemory {
     terminalId?: string
 
     /**
-     * 
+     * Observer id
+     */
+    observerId?: string
+
+    /**
+     * Nuker id
+     */
+    nukerId?: string
+
+    /**
+     * PowerSpawn id
+     */
+    factoryId?: string
+
+    /**
+     * PowerSpawn id
+     */
+    powerSpawnId?: string
+
+    /**
+     * 房间的孵化队列
      */
     spawnList: string[]
 }

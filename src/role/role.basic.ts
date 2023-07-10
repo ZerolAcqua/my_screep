@@ -42,9 +42,6 @@ const roleDigger: FuncDict = {
         const pos = source.pos.findInRange(FIND_STRUCTURES, 1,
             { filter: { structureType: STRUCTURE_CONTAINER } })[0].pos;
 
-        
-        creep.memory.target
-
 
         if (creep.pos.x != pos.x || creep.pos.y != pos.y) {
             creep.moveTo(pos)
@@ -68,14 +65,69 @@ const roleDigger: FuncDict = {
      */
 };
 
+
+/** 
+ * @description 
+ * 收集者角色：采集能源
+ * @finish
+ */
+const roleCollector: FuncDict = {
+
+    /** 
+     * @param {Creep} creep 
+     */
+    prepare: function (creep: Creep): void {
+
+        const config = Memory.creepConfigs[creep.name]
+        const data = config.data as WorkerData
+        const source = Game.getObjectById(data.sourceId) as Source | Mineral
+
+        const pos = source.pos.findInRange(FIND_STRUCTURES, 1,
+            { filter: { structureType: STRUCTURE_CONTAINER } })[0].pos;
+
+        
+        creep.memory.target=creep.findLink(pos)
+
+
+        if (creep.pos.x != pos.x || creep.pos.y != pos.y) {
+            creep.moveTo(pos)
+        }
+        else {
+            creep.memory.ready = true
+        }
+    },
+
+    /** 
+     * @param {Creep} creep 
+     */
+    run: function (creep: Creep) {
+        const config = Memory.creepConfigs[creep.name]
+        const data = config.data as WorkerData
+        const source = Game.getObjectById(data.sourceId) as Source | Mineral
+        if(creep.memory.target==null){
+            creep.harvest(source)
+        }
+        else{
+            if (creep.shouldWork()) {
+                creep.transfer(Game.getObjectById(creep.memory.target) as Structure, RESOURCE_ENERGY)
+                
+            }
+            else {
+                creep.harvest(source)
+            }
+        }
+    },
+    /**
+     * 该 creep 需要重生
+     */
+};
+
+
 /** 
  * @description 
  * 搬运者角色，目前只考虑搬运，不考虑采集
  * @todo
- * 
- * 
- * 
-*/
+ */
 const roleCarrier: FuncDict = {
     /** 
      * @param {Creep} creep 
@@ -204,17 +256,7 @@ const roleBuilder: FuncDict = {
 const roleRepairer: FuncDict = {
     /** @param {Creep} creep **/
     run: function (creep: Creep) {
-
-        if (creep.memory.working && creep.store[RESOURCE_ENERGY] == 0) {
-            creep.memory.working = false;
-            creep.say('harvest');
-        }
-        if (!creep.memory.working && creep.store.getFreeCapacity() == 0) {
-            creep.memory.working = true;
-            creep.say('repair');
-        }
-
-        if (creep.memory.working) {
+        if (creep.shouldWork()) {
 
             // // 修理 container
             // var targets = creep.room.find(FIND_STRUCTURES, {
@@ -266,7 +308,7 @@ const roleRepairer: FuncDict = {
             // if (creep.harvest(sources[1]) == ERR_NOT_IN_RANGE) {
             //     creep.moveTo(sources[1], { visualizePathStyle: { stroke: '#ffaa00' } });
             // }
-            creep.withdrawEnergy()
+            creep.getEngryFrom(Game.getObjectById<Structure>(creep.room.memory['storageId']))
         }
     },
     /**
@@ -278,6 +320,7 @@ const roleRepairer: FuncDict = {
 export const basicRoles: { [key: string]: FuncDict } = {
     "harvester": roleHarvester,
     "digger": roleDigger,
+    "collector": roleCollector,
     "carrier": roleCarrier,
     "upgrader": roleUpgrader,
     "builder": roleBuilder,

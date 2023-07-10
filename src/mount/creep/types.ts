@@ -15,11 +15,40 @@ interface Creep {
 
     /**
      * @description
+     * 寻找指定位置附近的 Link
+     * @param pos 要搜索的位置
+     * @returns 找到的 Link id
+     */
+    findLink(pos: RoomPosition): string | null
+
+    /**
+     * @author HoPGoldy
+     * @description
+     * 从目标结构获取能量
+     * 
+     * @param target 提供能量的结构
+     * @returns 执行 harvest 或 withdraw 后的返回值
+     */
+    getEngryFrom(target: Structure | Source): ScreepsReturnCode
+
+    /**
+     * @author HoPGoldy
+     * @description
+     * 转移资源到结构
+     * 
+     * @param target 要转移到的目标
+     * @param RESOURCE 要转移的资源类型
+     */
+    transferTo(target: Structure, RESOURCE: ResourceConstant): ScreepsReturnCode
+
+    /**
+     * @description
      * 寻找指定位置附近的储物点，优先级为 Storage > Link > Container
      * @param pos 要搜索的位置
      * @returns 找到的储物点 id
+     * @deprecated
      */
-    findStore(pos: RoomPosition): String | null
+    findStore(pos: RoomPosition): string | null
 
     /**
      * 采集能量

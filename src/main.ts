@@ -23,6 +23,7 @@ for (const config of creepConfigs) {
 }
 
 
+
 // 游戏入口函数
 export const loop = errorMapper(() => {
 
@@ -43,7 +44,10 @@ export const loop = errorMapper(() => {
 
     // creep 运转
     const creeps = Object.values(Game.creeps) as Creep[]
-    creeps.forEach((creep) => { creep.work() })
+    creeps.forEach((creep) => { 
+        // console.log(creep.name, creep.memory.role, creep.memory.working)
+        creep.work()
+    })
 
 
     // 全局统计数据

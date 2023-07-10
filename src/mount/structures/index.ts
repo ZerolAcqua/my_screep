@@ -3,8 +3,11 @@ import { LinkExtension } from './link'
 import { StorageExtension } from './storage'
 import { StructureExtension } from './structure'
 import { TerminalExtension } from './terminal'
+import { FactoryExtension } from './factory'
 import { ControllerExtension } from './controller'
-
+import { ObserverExtension } from './observer'
+import { NukerExtension } from './nuker'
+import { PowerSpawnExtension } from './powerSpawn'
 
 
 // 拓展和原型的对应关系
@@ -13,7 +16,11 @@ const assignMap = [
     [ StructureLink, LinkExtension ],
     [ StructureStorage, StorageExtension ],
     [ StructureTerminal, TerminalExtension ],
-    [ StructureController, ControllerExtension ]    
+    [ StructureFactory, FactoryExtension ],
+    [ StructureController, ControllerExtension ],
+    [ StructureObserver, ObserverExtension ],
+    [ StructureNuker, NukerExtension ],
+    [ StructurePowerSpawn, PowerSpawnExtension ],
 ]
 
 // 挂载拓展到建筑原型

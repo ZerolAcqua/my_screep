@@ -97,8 +97,8 @@ export class LinkExtension extends StructureLink {
         // 能量不足则待机
         if (this.store[RESOURCE_ENERGY] < 600) return
 
-        // 优先响应 upgrade
-        if (this.supportUpgradeLink()) return
+        // // 优先响应 upgrade
+        // if (this.supportUpgradeLink()) return
     }
 
     /**

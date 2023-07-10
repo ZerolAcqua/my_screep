@@ -7,16 +7,10 @@ const roleProcessor: FuncDict = {
      */
     run: function (creep: Creep): void {
         if (creep.shouldWork()) {
-            creep.transfer(Game.getObjectById(creep.room.memory['centerLinkId']) as Structure, RESOURCE_ENERGY)
+            creep.transfer(Game.getObjectById(creep.room.memory['storageId']) as Structure, RESOURCE_ENERGY)
         }
         else {
-            const sources = creep.room.find(FIND_MY_STRUCTURES, {
-                filter: (structure) => {
-                    return structure.structureType == STRUCTURE_STORAGE;
-                }
-            }
-            )
-            creep.withdraw(sources[0], RESOURCE_ENERGY)
+            creep.withdraw(Game.getObjectById(creep.room.memory['centerLinkId']) as Structure, RESOURCE_ENERGY)
         }
     },
     /** 
@@ -47,9 +41,18 @@ const roleDistributor: FuncDict = {
     run: function (creep: Creep): void {
         if (creep.shouldWork()) {
             // TODO: 按规划路径分配资源
+            creep.fillSpawnEngery() || creep.fillTower()
         }
         else {
-            // TODO: 从中央集群的 Storage 获取资源
+
+            // TODO: 提取为一个 moveWithdraw 函数
+            const source = Game.getObjectById(creep.room.memory['storageId']) as StructureStore
+            if (!creep.pos.inRangeTo(source.pos, 1)) {
+                creep.moveTo(source)
+                return
+            }
+            const sourceTypes = Object.keys(source.store)
+            creep.withdraw(source, sourceTypes[0] as ResourceConstant)
         }
     }
     /**

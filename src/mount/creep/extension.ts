@@ -28,9 +28,22 @@ export class CreepExtension extends Creep {
         return this.memory.working
     }
 
+    // 寻找指定位置附近的 Link
+    findLink(pos: RoomPosition): string | null{
+        var targets = pos.findInRange(FIND_STRUCTURES, 1, {
+            filter: (structure) => {
+                return structure.structureType == STRUCTURE_LINK;
+            }
+        });
+        if (targets.length > 0) {
+            return targets[0].id
+        }
+        return null
+    }
+
 
     // 寻找指定位置附近的储物点，优先级为 Storage > Link > Container
-    findStore(pos: RoomPosition): String | null {
+    findStore(pos: RoomPosition): string | null {
         var targets = pos.findInRange(FIND_STRUCTURES, 1, {
             filter: (structure) => {
                 return structure.structureType == STRUCTURE_STORAGE &&
@@ -60,6 +73,42 @@ export class CreepExtension extends Creep {
         }
         return null
     }
+
+    // 从目标结构获取能量
+    public getEngryFrom(target: Structure | Source): ScreepsReturnCode {
+        let result: ScreepsReturnCode
+        // 是建筑就用 withdraw
+        if (target instanceof Structure) result = this.withdraw(target as Structure, RESOURCE_ENERGY)
+        // 不是的话就用 harvest
+        else {
+            result = this.harvest(target as Source)
+
+            // harvest 需要长时间占用该位置，所以需要禁止对穿
+            // withdraw 则不需要
+            // if (result === OK) {
+            //     // 开始采集能量了就拒绝对穿
+            //     if (!this.memory.standed) {
+            //         this.room.addRestrictedPos(this.name, this.pos)
+            //         this.memory.standed = true
+            //     }
+            // }
+        }
+
+        // if (result === ERR_NOT_IN_RANGE) this.goTo(target.pos)
+        if (result === ERR_NOT_IN_RANGE) this.moveTo(target.pos)
+
+
+        return result
+    }
+
+    // 转移资源到结构
+    public transferTo(target: Structure, RESOURCE: ResourceConstant): ScreepsReturnCode {
+        // 转移能量实现
+        // this.goTo(target.pos)
+        this.moveTo(target.pos)
+        return this.transfer(target, RESOURCE)
+    }
+
 
     // 采集能量
     harvestEnergy(sourcreId = 0): void {
@@ -310,13 +359,13 @@ export class CreepExtension extends Creep {
         var targets = this.room.find(FIND_STRUCTURES, {
             filter: (structure) => {
                 return (structure.structureType == STRUCTURE_RAMPART || structure.structureType == STRUCTURE_WALL) &&
-                    structure.hits < 0.1 * structure.hitsMax;
+                    structure.hits < 0.005 * structure.hitsMax;
             }
         });
         if (targets.length == 0) {
             targets = this.room.find(FIND_STRUCTURES, {
                 filter: (structure) => {
-                    return structure.hits < 0.0005 * structure.hitsMax && structure.structureType == STRUCTURE_WALL;
+                    return structure.hits < 2/300 * structure.hitsMax && structure.structureType == STRUCTURE_WALL;
                 }
             });
         }
