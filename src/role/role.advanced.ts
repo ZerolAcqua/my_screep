@@ -5,26 +5,26 @@ const roleProcessor: FuncDict = {
     /** 
      * @param {Creep} creep 
      */
-    run: function (creep: Creep): void {
-        if (creep.shouldWork()) {
-            creep.transfer(Game.getObjectById(creep.room.memory['storageId']) as Structure, RESOURCE_ENERGY)
-        }
-        else {
-            creep.withdraw(Game.getObjectById(creep.room.memory['centerLinkId']) as Structure, RESOURCE_ENERGY)
-        }
+    prepare: function (creep: Creep): void {
+        const center = creep.room.memory.center
+        creep.moveTo(...center)
+        console.log("wtf?")
+        creep.memory.ready = (creep.pos.x == center[0] && creep.pos.y == center[1])
+        console.log(creep.pos.x == center[0] && creep.pos.y == center[1], creep.pos, center)
     },
+
     /** 
      * @param {Creep} creep 
      */
-    prepare: function (creep: Creep): void {
-        const center = creep.room.memory.center
-        if (creep.pos.x != center[0] || creep.pos.y != center[1]) {
-            creep.moveTo(center[0], center[1])
+    run: function (creep: Creep): void {
+        if (creep.shouldWork()) {
+            creep.transferTo(Game.getObjectById<Structure>(creep.room.memory['storageId']), RESOURCE_ENERGY) == OK
+                || creep.transferTo(Game.getObjectById<Structure>(creep.room.memory['NukerId']), RESOURCE_ENERGY) == OK
+                || creep.transferTo(Game.getObjectById<Structure>(creep.room.memory['terminalId']), RESOURCE_ENERGY) == OK
         }
         else {
-            creep.memory.ready = true
+            creep.getEngryFrom(Game.getObjectById<Structure>(creep.room.memory['centerLinkId']))
         }
-
     },
     /**
      * 该 creep 需要重生
@@ -44,15 +44,8 @@ const roleDistributor: FuncDict = {
             creep.fillSpawnEngery() || creep.fillTower()
         }
         else {
-
-            // TODO: 提取为一个 moveWithdraw 函数
-            const source = Game.getObjectById(creep.room.memory['storageId']) as StructureStore
-            if (!creep.pos.inRangeTo(source.pos, 1)) {
-                creep.moveTo(source)
-                return
-            }
-            const sourceTypes = Object.keys(source.store)
-            creep.withdraw(source, sourceTypes[0] as ResourceConstant)
+            const source = Game.getObjectById<StructureStore>(creep.room.memory['storageId'])
+            creep.getEngryFrom(source)
         }
     }
     /**

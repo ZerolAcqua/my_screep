@@ -1,5 +1,6 @@
 /** 采集者角色
 *   用于初始启动的角色
+*   @deprecated
 */
 const roleHarvester: FuncDict = {
     /** 
@@ -57,8 +58,9 @@ const roleDigger: FuncDict = {
     run: function (creep: Creep) {
         const config = Memory.creepConfigs[creep.name]
         const data = config.data as WorkerData
-        const source = Game.getObjectById(data.sourceId) as Source | Mineral
-        creep.harvest(source)
+        const source = Game.getObjectById(data.sourceId) as Source
+        creep.getEngryFrom(source)
+        
     },
     /**
      * 该 creep 需要重生
@@ -80,21 +82,16 @@ const roleCollector: FuncDict = {
 
         const config = Memory.creepConfigs[creep.name]
         const data = config.data as WorkerData
-        const source = Game.getObjectById(data.sourceId) as Source | Mineral
+        const source = Game.getObjectById(data.sourceId) as Source
 
         const pos = source.pos.findInRange(FIND_STRUCTURES, 1,
             { filter: { structureType: STRUCTURE_CONTAINER } })[0].pos;
 
         
-        creep.memory.target=creep.findLink(pos)
+        creep.memory.target = creep.findLink(pos)
+        creep.moveTo(pos)
+        creep.memory.ready = (creep.pos.x==pos.x&&creep.pos.y==pos.y)
 
-
-        if (creep.pos.x != pos.x || creep.pos.y != pos.y) {
-            creep.moveTo(pos)
-        }
-        else {
-            creep.memory.ready = true
-        }
     },
 
     /** 
@@ -103,17 +100,17 @@ const roleCollector: FuncDict = {
     run: function (creep: Creep) {
         const config = Memory.creepConfigs[creep.name]
         const data = config.data as WorkerData
-        const source = Game.getObjectById(data.sourceId) as Source | Mineral
+        const source = Game.getObjectById(data.sourceId) as Source
         if(creep.memory.target==null){
-            creep.harvest(source)
+            creep.getEngryFrom(source)
         }
         else{
             if (creep.shouldWork()) {
-                creep.transfer(Game.getObjectById(creep.memory.target) as Structure, RESOURCE_ENERGY)
+                creep.transferTo(Game.getObjectById(creep.memory.target) as Structure, RESOURCE_ENERGY)
                 
             }
             else {
-                creep.harvest(source)
+                creep.getEngryFrom(source)
             }
         }
     },
@@ -125,8 +122,9 @@ const roleCollector: FuncDict = {
 
 /** 
  * @description 
- * 搬运者角色，目前只考虑搬运，不考虑采集
+ * 搬运者角色，目前只考虑从 container 搬运能量
  * @todo
+ * @deprecated
  */
 const roleCarrier: FuncDict = {
     /** 
@@ -145,9 +143,7 @@ const roleCarrier: FuncDict = {
                 creep.moveTo(source)
                 return
             }
-
-            const sourceTypes = Object.keys(source.store)
-            creep.withdraw(source, sourceTypes[0] as ResourceConstant)
+            creep.getEngryFrom(source)
         }
     },
     /**
@@ -166,13 +162,9 @@ const roleUpgrader: FuncDict = {
      */
     prepare: function (creep: Creep): void {
         // 这里的逻辑要更改，不能直接写死坐标
-        if (creep.pos.x != 32 || creep.pos.y != 22) {
-            creep.moveTo(32, 22)
-        }
-        else {
-            creep.memory.ready = true
-        }
-
+        creep.moveTo(32, 22)
+        creep.memory.ready = (creep.pos.x==32&&creep.pos.y==22)
+        creep.memory.working = false
     },
 
     /** @param {Creep} creep **/
@@ -190,7 +182,7 @@ const roleUpgrader: FuncDict = {
             // }
             // creep.withdrawEnergy()
             // creep.harvestEnergy(1)
-            creep.withdraw(Game.getObjectById(creep.room.memory['upgradeLinkId']) as Structure, RESOURCE_ENERGY)
+            creep.getEngryFrom(Game.getObjectById(creep.room.memory['upgradeLinkId']) as Structure)
         }
     },
     /**
@@ -231,12 +223,12 @@ const roleBuilder: FuncDict = {
         else {
             // creep.harvestEnergy(1);
             // creep.withdrawEnergy()
-            const source = Game.getObjectById(creep.room.memory['storageId']) as Structure
+            const source = Game.getObjectById<Structure>(creep.room.memory['storageId'])
             if (!creep.pos.inRangeTo(source.pos, 1)) {
                 creep.moveTo(source)
                 return
             }
-            creep.withdraw(source, RESOURCE_ENERGY)
+            creep.getEngryFrom(source)
         }
     },
     /**

@@ -145,7 +145,7 @@ export class RoomExtension extends Room {
                     MOVE, MOVE, MOVE
                 ]
             )
-            this.addSpawnTask('builder')
+            this.addSpawnTask('builder1')
             log(`准备孵化 builder 建造建筑`, ['creepController'])
         }
     }
@@ -211,17 +211,17 @@ export class RoomExtension extends Room {
             });
         }
 
-        // // wall
-        // if (!targets.length) {
-        //     targets = this.find(FIND_STRUCTURES, {
-        //         filter: (structure) => {
-        //             // 初始值为 0.0005
-        //             return structure.hits < 0.0010 * structure.hitsMax && structure.structureType == STRUCTURE_WALL;
-        //         }
-        //     });
-        //     // // 对 targets 按 hits 从小到大排序
-        //     // targets.sort((a, b) => floor(a.hits - b.hits)/1000);
-        // }
+        // wall
+        if (!targets.length) {
+            targets = this.find(FIND_STRUCTURES, {
+                filter: (structure) => {
+                    // 初始值为 0.0005
+                    return structure.hits < 150000 && structure.structureType == STRUCTURE_WALL;
+                }
+            });
+            // // 对 targets 按 hits 从小到大排序
+            // targets.sort((a, b) => floor(a.hits - b.hits)/1000);
+        }
 
 
 
