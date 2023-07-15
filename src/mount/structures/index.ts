@@ -1,4 +1,4 @@
-import { assignPrototype } from '@/modules/utils'
+import { assignPrototype } from '@/utils'
 import { LinkExtension } from './link'
 import { StorageExtension } from './storage'
 import { StructureExtension } from './structure'
@@ -8,6 +8,7 @@ import { ControllerExtension } from './controller'
 import { ObserverExtension } from './observer'
 import { NukerExtension } from './nuker'
 import { PowerSpawnExtension } from './powerSpawn'
+import { TowerExtension } from './tower'
 
 
 // 拓展和原型的对应关系
@@ -21,6 +22,7 @@ const assignMap = [
     [ StructureObserver, ObserverExtension ],
     [ StructureNuker, NukerExtension ],
     [ StructurePowerSpawn, PowerSpawnExtension ],
+    [ StructureTower, TowerExtension ]
 ]
 
 // 挂载拓展到建筑原型

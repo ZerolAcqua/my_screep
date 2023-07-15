@@ -1,5 +1,40 @@
-// 项目中出现的颜色常量
+/**
+ * @author HoPGoldy
+ * @abstract 项目中出现的颜色常量
+ */ 
 type Colors = 'green' | 'blue' | 'yellow' | 'red'
+
+/**
+ * @author HoPGoldy
+ * @abstract 绘制帮助时需要的模块信息
+ */
+interface ModuleDescribe {
+    // 模块名
+    name: string
+    // 模块介绍
+    describe: string
+    // 该模块的 api 列表
+    api: FunctionDescribe[]
+}
+
+// 函数介绍构造函数的参数对象
+interface FunctionDescribe {
+    // 该函数的用法
+    title: string
+    // 参数介绍
+    describe?: string
+    // 该函数的参数列表
+    params?: {
+        // 参数名
+        name: string
+        // 参数介绍
+        desc: string
+    }[]
+    // 函数名
+    functionName: string
+    // 是否为直接执行类型：不需要使用 () 就可以执行的命令
+    commandType?: boolean
+}
 
 /**
  * @author HoPGoldy
@@ -76,11 +111,15 @@ interface Memory {
                 [commRes: string]: number
             }
         }
+    },
+    // 白名单
+    whiteList?: {
+        [playerName: string]: number
     }
 }
 
 //
-type StructureStore = StructureContainer|StructureStorage|StructureLink|StructureTerminal
+type StructureStore = StructureContainer | StructureStorage | StructureLink | StructureTerminal
 
 
 // 所有的 creep 角色

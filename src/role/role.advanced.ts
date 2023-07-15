@@ -8,9 +8,7 @@ const roleProcessor: FuncDict = {
     prepare: function (creep: Creep): void {
         const center = creep.room.memory.center
         creep.moveTo(...center)
-        console.log("wtf?")
         creep.memory.ready = (creep.pos.x == center[0] && creep.pos.y == center[1])
-        console.log(creep.pos.x == center[0] && creep.pos.y == center[1], creep.pos, center)
     },
 
     /** 

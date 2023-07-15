@@ -1,4 +1,4 @@
-import { assignPrototype } from '@/modules/utils'
+import { assignPrototype } from '@/utils'
 import { CreepExtension } from './extension'
 
 // 挂载拓展到 Creep 原型

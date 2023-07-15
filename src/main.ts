@@ -5,7 +5,7 @@ import { errorMapper } from './modules/errorMapper'
 import {
     generatePixel,
     stateScanner
-} from './modules/utils'
+} from './utils'
 
 // 引入重生管理
 import { manageRespawn } from './manage/respawn'

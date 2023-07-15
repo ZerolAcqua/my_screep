@@ -1,14 +1,13 @@
 import { manageRespawn } from "@/manage/respawn";
-import { log } from "@/modules/utils";
+import { log } from "@/utils";
 import { creepApi } from "@/manage/creepApi";
-import {isBodyPartConstantArray} from "@/modules/utils";
+import {isBodyPartConstantArray,whiteListFilter} from "@/utils";
 
 /**
  * @description
  * 自定义的 Storage 的拓展
  */
 export class RoomExtension extends Room {
-
     /**
      * @description
      * 设置房间中央集群核心位置
@@ -155,9 +154,10 @@ export class RoomExtension extends Room {
      * @description
      * 房间防御
      * @returns 是否执行了防御
+     * @deprecated
      */
     defendEnemy(): boolean {
-        var hostiles = this.find(FIND_HOSTILE_CREEPS);
+        var hostiles = this.find(FIND_HOSTILE_CREEPS, { filter: whiteListFilter});
         if (hostiles.length > 0) {
             var towers: StructureTower[] = this.find(
                 FIND_MY_STRUCTURES, { filter: { structureType: STRUCTURE_TOWER } });

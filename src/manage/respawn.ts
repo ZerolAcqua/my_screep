@@ -1,4 +1,4 @@
-import { log } from "@/modules/utils"
+import { log } from "@/utils"
 import { creepApi } from "@/manage/creepApi"
 import { roles } from "@/role";
 
