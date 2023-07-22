@@ -1,5 +1,5 @@
-import { createHelp } from 'modules/help'
-
+import { createHelp } from '@/modules/help'
+import { creepApi } from "@/modules/creepController"
 
 // 全局拓展对象
 export default {
@@ -144,5 +144,6 @@ export default {
                 ]
             })
         }
-    }
+    },
+    creepApi
 }

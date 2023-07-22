@@ -13,6 +13,15 @@ export function generatePixel(): OK | ERR_NOT_ENOUGH_RESOURCES {
     else return ERR_NOT_ENOUGH_RESOURCES
 }
 
+/**
+ * @author HoPGoldy
+ * @abstract 获取指定方向的相反方向
+ * 
+ * @param direction 目标方向
+ */
+export function getOppositeDirection(direction: DirectionConstant): DirectionConstant {
+    return <DirectionConstant>((direction + 3) % 8 + 1)
+ }
 
 /**
  * @author HoPGoldy
@@ -29,6 +38,39 @@ export function whiteListFilter(creep) {
         return false
     }
     return true
+}
+
+/**
+ * @author HoPGoldy
+ * @abstract 生成控制台链接
+ * @param content 要显示的内容
+ * @param url 要跳转到的 url
+ * @param newTab 是否在新标签页打开
+ */
+export function createLink(content: string, url: string, newTab: boolean = true): string {
+    return `<a href="${url}" target="${newTab ? '_blank' : '_self'}">${content}</a>`
+}
+
+/**
+ * @author HoPGoldy
+ * @abstract 给房间内添加跳转链接
+ * 
+ * @param roomName 添加调整链接的房间名
+ * @returns 打印在控制台上后可以点击跳转的房间名
+ */
+export function createRoomLink(roomName): string {
+    return createLink(roomName, `https://screeps.com/a/#!/room/${Game.shard.name}/${roomName}`, false)
+}
+
+/**
+ * @author HoPGoldy
+ * @abstract 快捷生成单个常量帮助
+ * 
+ * @param name 常量简称
+ * @param constant 常量名
+ */
+export function createConst(name: string, constant: string): string {
+    return `${colorful(name, 'green')} ${colorful(constant, 'blue')}`
 }
 
 /**

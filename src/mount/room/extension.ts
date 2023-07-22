@@ -1,13 +1,29 @@
-import { manageRespawn } from "@/manage/respawn";
-import { log } from "@/utils";
-import { creepApi } from "@/manage/creepApi";
-import {isBodyPartConstantArray,whiteListFilter} from "@/utils";
+import { createRoomLink, log } from "@/utils";
+import { creepApi } from "@/modules/creepController";
+import { isBodyPartConstantArray, whiteListFilter } from "@/utils";
 
 /**
  * @description
- * 自定义的 Storage 的拓展
+ * 自定义的 Room 的拓展
  */
 export class RoomExtension extends Room {
+    /**
+     * @author HoPGoldy
+     * @abstract 全局日志
+     * 
+     * @param content 日志内容
+     * @param prefixes 前缀中包含的内容
+     * @param color 日志前缀颜色
+     * @param notify 是否发送邮件
+     */
+    log(content: string, instanceName: string = '', color: Colors | undefined = undefined, notify: boolean = false): void {
+        // 为房间名添加超链接
+        const roomName = createRoomLink(this.name)
+        // 生成前缀并打印日志
+        const prefixes = instanceName ? [roomName, instanceName] : [roomName]
+        log(content, prefixes, color, notify)
+    }
+
     /**
      * @description
      * 设置房间中央集群核心位置
@@ -17,6 +33,59 @@ export class RoomExtension extends Room {
         this.memory.center = [center.x, center.y]
     }
 
+
+    /**
+     * 添加禁止通行位置
+     * 
+     * @param creepName 禁止通行点位的注册者
+     * @param pos 禁止通行的位置
+     */
+    public addRestrictedPos(creepName: string, pos: RoomPosition): void {
+        if (!this.memory.restrictedPos) this.memory.restrictedPos = {}
+
+        this.memory.restrictedPos[creepName] = this.serializePos(pos)
+    }
+
+    /**
+     * 获取房间内的禁止通行点位
+     */
+    public getRestrictedPos(): { [creepName: string]: string } {
+        return this.memory.restrictedPos
+    }
+
+    /**
+     * 将指定位置从禁止通行点位中移除
+     * 
+     * @param creepName 要是否点位的注册者名称
+     */
+    public removeRestrictedPos(creepName: string): void {
+        if (!this.memory.restrictedPos) this.memory.restrictedPos = {}
+
+        delete this.memory.restrictedPos[creepName]
+    }
+
+    /**
+     * 将指定位置序列化为字符串
+     * 形如: 12/32/E1N2
+     * 
+     * @param pos 要进行压缩的位置
+     */
+    public serializePos(pos: RoomPosition): string {
+        return `${pos.x}/${pos.y}/${pos.roomName}`
+    }
+
+    /**
+     * 将位置序列化字符串转换为位置
+     * 位置序列化字符串形如: 12/32/E1N2
+     * 
+     * @param posStr 要进行转换的字符串
+     */
+    public unserializePos(posStr: string): RoomPosition | undefined {
+        // 形如 ["12", "32", "E1N2"]
+        const infos = posStr.split('/')
+
+        return infos.length === 3 ? new RoomPosition(Number(infos[0]), Number(infos[1]), infos[2]) : undefined
+    }
 
     /**
      * @description
@@ -35,10 +104,70 @@ export class RoomExtension extends Room {
 
         this.defendEnemy() || this.repairBuilding();
 
-        if (!(Game.time % 20)) { 
+        if (!(Game.time % 20)) {
             this.stateScanner()
         }
     }
+
+    /**
+     * 向房间中发布 power 请求任务
+     * 该方法已集成了 isPowerEnabled 判定，调用该方法之前无需额外添加房间是否启用 power 的逻辑
+     * 
+     * @param task 要添加的 power 任务
+     * @param priority 任务优先级位置，默认追加到队列末尾。例：该值为 0 时将无视队列长度直接将任务插入到第一个位置
+     * @returns OK 添加成功
+     * @returns ERR_NAME_EXISTS 已经有同名任务存在了
+     * @returns ERR_INVALID_TARGET 房间控制器未启用 power
+     */
+    public addPowerTask(task: PowerConstant, priority: number = null): OK | ERR_NAME_EXISTS | ERR_INVALID_TARGET {
+        // 初始化时添加房间初始化任务（编号 -1）
+        if (!this.memory.powerTasks) this.memory.powerTasks = [-1 as PowerConstant]
+        if (!this.controller.isPowerEnabled) return ERR_INVALID_TARGET
+
+        // 有相同的就拒绝添加
+        if (this.hasPowerTask(task)) return ERR_NAME_EXISTS
+
+        // 发布任务到队列
+        if (!priority) this.memory.powerTasks.push(task)
+        // 追加到队列指定位置
+        else this.memory.powerTasks.splice(priority, 0, task)
+
+        return OK
+    }
+
+    /**
+     * 检查是否已经存在指定任务
+     * 
+     * @param task 要检查的 power 任务
+     */
+    private hasPowerTask(task: PowerConstant): boolean {
+        return this.memory.powerTasks.find(power => power === task) ? true : false
+    }
+
+    /**
+     * 获取当前的 power 任务
+     */
+    public getPowerTask(): PowerConstant | undefined {
+        if (!this.memory.powerTasks || this.memory.powerTasks.length <= 0) return undefined
+        else return this.memory.powerTasks[0]
+    }
+
+    /**
+     * 挂起当前任务
+     * 将会把最前面的 power 任务移动到队列末尾
+     */
+    public hangPowerTask(): void {
+        const task = this.memory.powerTasks.shift()
+        this.memory.powerTasks.push(task)
+    }
+
+    /**
+     * 移除第一个 power 任务
+     */
+    public deleteCurrentPowerTask(): void {
+        this.memory.powerTasks.shift()
+    }
+
 
     /**
      * @description
@@ -81,14 +210,14 @@ export class RoomExtension extends Room {
         }
         else {
             // let spawn = Game.spawns['Spawn1']
-            let spawns = Object.values(Game.spawns).filter((spawn)=>(spawn.room.name == this.name)) as StructureSpawn[]
+            let spawns = Object.values(Game.spawns).filter((spawn) => (spawn.room.name == this.name)) as StructureSpawn[]
             for (const spawn of spawns) {
                 if (spawn && !spawn.spawning) {
                     let creepName = this.memory.spawnList[0]
                     let creepConfig = Memory.creepConfigs[creepName]
                     if (creepConfig) {
                         // FIXME
-                        if (isBodyPartConstantArray(creepConfig.bodys)) { 
+                        if (isBodyPartConstantArray(creepConfig.bodys)) {
                             let returnCode = spawn.spawnCreep(creepConfig.bodys as BodyPartConstant[], creepName, { memory: { 'role': creepConfig.role } })
                             if (returnCode == OK) {
                                 this.memory.spawnList.shift()
@@ -109,7 +238,7 @@ export class RoomExtension extends Room {
                     }
                 }
                 else {
-                    console.log(`spawn ${spawn.name} not found or busy`)   
+                    console.log(`spawn ${spawn.name} not found or busy`)
                     continue
                 }
             }
@@ -130,8 +259,8 @@ export class RoomExtension extends Room {
      */
     public addBuildTask() {
         if (this.find(FIND_CONSTRUCTION_SITES).length > 0
-            && !this.hasSpawnTask('builder')
-            && !("builder" in Game.creeps)) {
+            && !this.hasSpawnTask('builder1')
+            && !("builder1" in Game.creeps)) {
             creepApi.add('builder1',
                 'builder',
                 {
@@ -157,7 +286,7 @@ export class RoomExtension extends Room {
      * @deprecated
      */
     defendEnemy(): boolean {
-        var hostiles = this.find(FIND_HOSTILE_CREEPS, { filter: whiteListFilter});
+        var hostiles = this.find(FIND_HOSTILE_CREEPS, { filter: whiteListFilter });
         if (hostiles.length > 0) {
             var towers: StructureTower[] = this.find(
                 FIND_MY_STRUCTURES, { filter: { structureType: STRUCTURE_TOWER } });
@@ -205,7 +334,7 @@ export class RoomExtension extends Room {
         if (!targets.length) {
             targets = this.find(FIND_STRUCTURES, {
                 filter: (structure) => {
-                    // 初始值为 0.01
+                    // 初始值为 0.01 1,500,000
                     return (structure.hits < 1500000 && structure.structureType == STRUCTURE_RAMPART);
                 }
             });
@@ -216,7 +345,7 @@ export class RoomExtension extends Room {
             targets = this.find(FIND_STRUCTURES, {
                 filter: (structure) => {
                     // 初始值为 0.0005
-                    return structure.hits < 150000 && structure.structureType == STRUCTURE_WALL;
+                    return structure.hits < 300000 && structure.structureType == STRUCTURE_WALL;
                 }
             });
             // // 对 targets 按 hits 从小到大排序
@@ -237,11 +366,11 @@ export class RoomExtension extends Room {
      * @description 统计房间信息
      * 
      */
-        private stateScanner(){
-            if (!Memory.stats.rooms[this.name]) Memory.stats.rooms[this.name] = {}
-    
-            // 统计房间内爬的数量
-            Memory.stats.rooms[this.name].creepNum = this.find(FIND_MY_CREEPS).length
-        }
+    private stateScanner() {
+        if (!Memory.stats.rooms[this.name]) Memory.stats.rooms[this.name] = {}
+
+        // 统计房间内爬的数量
+        Memory.stats.rooms[this.name].creepNum = this.find(FIND_MY_CREEPS).length
+    }
 
 }

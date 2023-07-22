@@ -8,14 +8,14 @@ import {
 } from './utils'
 
 // 引入重生管理
-import { manageRespawn } from './manage/respawn'
+import creepNumberListener from '@/modules/creepController'
 
 
 
 import mount from './mount'
 
 import {creepConfigs} from '@/config'
-import {creepApi} from '@/manage/creepApi'
+import {creepApi} from '@/modules/creepController'
 
 // 临时解决方案
 for (const config of creepConfigs) {
@@ -30,7 +30,6 @@ export const loop = errorMapper(() => {
     // 挂载原型拓展
     mount()
 
-
     // 生成 pixel
     generatePixel()
     
@@ -40,7 +39,7 @@ export const loop = errorMapper(() => {
     rooms.forEach((room) => { room.work() })
 
     // creep 数量控制
-    manageRespawn.work();
+    creepNumberListener();
 
     // creep 运转
     const creeps = Object.values(Game.creeps) as Creep[]
@@ -48,6 +47,11 @@ export const loop = errorMapper(() => {
         // console.log(creep.name, creep.memory.role, creep.memory.working)
         creep.work()
     })
+
+    // powercreep 运转
+    const powerCreeps = Object.values(Game.powerCreeps) as PowerCreep[]
+    powerCreeps.forEach((powerCreep) => { if(powerCreep.work)powerCreep.work() })
+
 
 
     // 全局统计数据

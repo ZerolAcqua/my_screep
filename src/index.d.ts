@@ -75,6 +75,7 @@ interface Memory {
             bodys: BodyAutoConfigConstant | BodyPartConstant[]
         }
     },
+    psRooms?: string[],
     // 全局统计信息
     stats: {
         // GCl/GPL 升级百分比
@@ -116,11 +117,58 @@ interface Memory {
     whiteList?: {
         [playerName: string]: number
     }
+
+    // 要绕过的房间名列表，由全局模块 bypass 负责。
+    bypassRooms: string[]
 }
 
 //
 type StructureStore = StructureContainer | StructureStorage | StructureLink | StructureTerminal
 
+
+/**
+ * @author HoPGoldy
+ * @abstract 每种 power 所对应的的任务配置项
+ * 
+ * @property {} needExecute 该 power 的检查方法
+ * @property {} run power 的具体工作内容
+ */
+interface IPowerTaskConfig {
+    /**
+     * power 的资源获取逻辑
+     * 
+     * @returns OK 任务完成，将会执行下面的 target 方法
+     * @returns ERR_NOT_ENOUGH_RESOURCES 资源不足，将会强制切入 ops 生成任务
+     * @returns ERR_BUSY 任务未完成，保留工作状态，后续继续执行
+     */
+    source?: (creep: PowerCreep) => OK | ERR_NOT_ENOUGH_RESOURCES | ERR_BUSY
+    /**
+     * power 的具体工作逻辑
+     * 
+     * @returns OK 任务完成，将会继续检查后续 power
+     * @returns ERR_NOT_ENOUGH_RESOURCES 资源不足，将会执行上面的 source 方法，如果没有 source 的话就强制切入 ops 生成任务
+     * @returns ERR_BUSY 任务未完成，保留工作状态，后续继续执行
+     */
+    target: (creep: PowerCreep) => OK | ERR_NOT_ENOUGH_RESOURCES | ERR_BUSY
+}
+
+/**
+ * @author HoPGoldy
+ * @abstract 所有 power 的任务配置列表
+ */
+interface IPowerTaskConfigs {
+    [powerType: string]: IPowerTaskConfig
+}
+
+/**
+ * 工厂的任务队列中的具体任务配置
+ */
+interface IFactoryTask {
+    // 任务目标
+    target: CommodityConstant,
+    // 该任务要生成的数量
+    amount: number
+}
 
 // 所有的 creep 角色
 type CreepRoleConstant = BaseRoleConstant | AdvancedRoleConstant

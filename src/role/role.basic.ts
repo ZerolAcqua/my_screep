@@ -45,7 +45,7 @@ const roleDigger: FuncDict = {
 
 
         if (creep.pos.x != pos.x || creep.pos.y != pos.y) {
-            creep.moveTo(pos)
+            creep.goTo(pos)
         }
         else {
             creep.memory.ready = true
@@ -89,7 +89,7 @@ const roleCollector: FuncDict = {
 
         
         creep.memory.target = creep.findLink(pos)
-        creep.moveTo(pos)
+        creep.goTo(pos)
         creep.memory.ready = (creep.pos.x==pos.x&&creep.pos.y==pos.y)
 
     },
@@ -140,7 +140,7 @@ const roleCarrier: FuncDict = {
             const source = Game.getObjectById(data.sourceId) as StructureStore
 
             if (!creep.pos.inRangeTo(source.pos, 1)) {
-                creep.moveTo(source)
+                creep.goTo(source.pos)
                 return
             }
             creep.getEngryFrom(source)
@@ -162,7 +162,7 @@ const roleUpgrader: FuncDict = {
      */
     prepare: function (creep: Creep): void {
         // 这里的逻辑要更改，不能直接写死坐标
-        creep.moveTo(32, 22)
+        creep.goTo(creep.room.getPositionAt(32, 22))
         creep.memory.ready = (creep.pos.x==32&&creep.pos.y==22)
         creep.memory.working = false
     },
@@ -171,14 +171,14 @@ const roleUpgrader: FuncDict = {
     run: function (creep: Creep) {
         if (creep.shouldWork()) {
             if (creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
-                // creep.moveTo(creep.room.controller, {visualizePathStyle: {stroke: '#ffffff'}});
-                creep.moveTo(creep.room.getPositionAt(32, 22), { visualizePathStyle: { stroke: '#ffffff' } });
+                // creep.goTo(creep.room.controller, {visualizePathStyle: {stroke: '#ffffff'}});
+                creep.goTo(creep.room.getPositionAt(32, 22));
             }
         }
         else {
             // var sources = creep.room.find(FIND_SOURCES);
             // if (creep.harvest(sources[1]) == ERR_NOT_IN_RANGE) {
-            //     creep.moveTo(sources[1], { visualizePathStyle: { stroke: '#ffaa00' } });
+            //     creep.goTo(sources[1], { visualizePathStyle: { stroke: '#ffaa00' } });
             // }
             // creep.withdrawEnergy()
             // creep.harvestEnergy(1)
@@ -212,7 +212,7 @@ const roleBuilder: FuncDict = {
                 });
                 if (targets.length) {
                     if (creep.repair(targets[0]) == ERR_NOT_IN_RANGE) {
-                        creep.moveTo(targets[0], { visualizePathStyle: { stroke: '#ff0000' } });
+                        creep.goTo(targets[0].pos);
                     }
                 }
                 else {
@@ -225,7 +225,7 @@ const roleBuilder: FuncDict = {
             // creep.withdrawEnergy()
             const source = Game.getObjectById<Structure>(creep.room.memory['storageId'])
             if (!creep.pos.inRangeTo(source.pos, 1)) {
-                creep.moveTo(source)
+                creep.goTo(source.pos)
                 return
             }
             creep.getEngryFrom(source)
@@ -289,7 +289,7 @@ const roleRepairer: FuncDict = {
 
             // if (targets.length) {
             //     if (creep.repair(targets[0]) == ERR_NOT_IN_RANGE) {
-            //         creep.moveTo(targets[0], { visualizePathStyle: { stroke: '#ff0000' } });
+            //         creep.goTo(targets[0], { visualizePathStyle: { stroke: '#ff0000' } });
             //     }
             // }
 
@@ -298,7 +298,7 @@ const roleRepairer: FuncDict = {
         else {
             // var sources = creep.room.find(FIND_SOURCES);
             // if (creep.harvest(sources[1]) == ERR_NOT_IN_RANGE) {
-            //     creep.moveTo(sources[1], { visualizePathStyle: { stroke: '#ffaa00' } });
+            //     creep.goTo(sources[1], { visualizePathStyle: { stroke: '#ffaa00' } });
             // }
             creep.getEngryFrom(Game.getObjectById<Structure>(creep.room.memory['storageId']))
         }

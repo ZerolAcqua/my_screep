@@ -7,7 +7,7 @@ const roleProcessor: FuncDict = {
      */
     prepare: function (creep: Creep): void {
         const center = creep.room.memory.center
-        creep.moveTo(...center)
+        creep.goTo(creep.room.getPositionAt(...center))
         creep.memory.ready = (creep.pos.x == center[0] && creep.pos.y == center[1])
     },
 
@@ -15,13 +15,59 @@ const roleProcessor: FuncDict = {
      * @param {Creep} creep 
      */
     run: function (creep: Creep): void {
-        if (creep.shouldWork()) {
-            creep.transferTo(Game.getObjectById<Structure>(creep.room.memory['storageId']), RESOURCE_ENERGY) == OK
-                || creep.transferTo(Game.getObjectById<Structure>(creep.room.memory['NukerId']), RESOURCE_ENERGY) == OK
-                || creep.transferTo(Game.getObjectById<Structure>(creep.room.memory['terminalId']), RESOURCE_ENERGY) == OK
+        // TODO: 这样的逻辑肯定是不行的，需要改
+        if (Game.time % 40 < 5) {
+            if (creep.store.getUsedCapacity() != 0) {
+                // energy
+                creep.transferTo(creep.room.powerSpawn, RESOURCE_ENERGY) == OK
+                    || (creep.room.storage.store.getFreeCapacity() > 0.3 * creep.room.storage.store.getCapacity() 
+                    && creep.transferTo(creep.room.storage, RESOURCE_ENERGY) == OK)
+                    || creep.transferTo(creep.room.nuker, RESOURCE_ENERGY) == OK
+                    || creep.transferTo(creep.room.terminal, RESOURCE_ENERGY) == OK
+                    // Ghodium
+                    || creep.transferTo(creep.room.nuker, RESOURCE_GHODIUM) == OK
+                    || creep.transferTo(creep.room.storage, RESOURCE_GHODIUM) == OK
+                    // Power
+                    || creep.transferTo(creep.room.powerSpawn, RESOURCE_POWER) == OK
+                    || creep.transferTo(creep.room.storage, RESOURCE_POWER) == OK
+
+            }
+            else {
+                // energy
+                // creep.getEngryFrom(creep.room.centerLink) == OK
+                // || creep.getEngryFrom(creep.room.storage) == OK
+                // Ghodium
+                creep.withdraw(creep.room.terminal, RESOURCE_GHODIUM) == OK
+                    // Power
+                    || creep.withdraw(creep.room.terminal, RESOURCE_POWER) == OK
+                    || creep.withdraw(creep.room.storage, RESOURCE_POWER) == OK
+            }
         }
         else {
-            creep.getEngryFrom(Game.getObjectById<Structure>(creep.room.memory['centerLinkId']))
+            if (creep.store.getUsedCapacity() != 0) {
+                // energy
+                creep.transferTo(creep.room.powerSpawn, RESOURCE_ENERGY) == OK
+                    || (creep.room.storage.store.getFreeCapacity() > 0.2 * creep.room.storage.store.getCapacity() 
+                    && creep.transferTo(creep.room.storage, RESOURCE_ENERGY) == OK)
+                    || creep.transferTo(creep.room.nuker, RESOURCE_ENERGY) == OK
+                    || creep.transferTo(creep.room.terminal, RESOURCE_ENERGY) == OK
+                    // Ghodium
+                    || creep.transferTo(creep.room.nuker, RESOURCE_GHODIUM) == OK
+                    || creep.transferTo(creep.room.storage, RESOURCE_GHODIUM) == OK
+                    // Power
+                    || creep.transferTo(creep.room.storage, RESOURCE_POWER) == OK
+
+            }
+            else {
+                // energy
+                creep.getEngryFrom(creep.room.centerLink) == OK
+                    || creep.getEngryFrom(creep.room.storage) == OK
+                    // Ghodium
+                    || creep.withdraw(creep.room.terminal, RESOURCE_GHODIUM) == OK
+                    // Power
+                    || creep.withdraw(creep.room.terminal, RESOURCE_POWER) == OK
+                    || creep.withdraw(creep.room.storage, RESOURCE_POWER) == OK
+            }
         }
     },
     /**
