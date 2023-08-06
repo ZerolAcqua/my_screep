@@ -22,7 +22,7 @@ const roleProcessor: FuncDict = {
                 creep.transferTo(creep.room.powerSpawn, RESOURCE_ENERGY) == OK
                     || (creep.room.storage.store.getFreeCapacity() > 0.3 * creep.room.storage.store.getCapacity() 
                     && creep.transferTo(creep.room.storage, RESOURCE_ENERGY) == OK)
-                    || creep.transferTo(creep.room.nuker, RESOURCE_ENERGY) == OK
+                    // || creep.transferTo(creep.room.nuker, RESOURCE_ENERGY) == OK
                     || creep.transferTo(creep.room.terminal, RESOURCE_ENERGY) == OK
                     // Ghodium
                     || creep.transferTo(creep.room.nuker, RESOURCE_GHODIUM) == OK
@@ -49,7 +49,7 @@ const roleProcessor: FuncDict = {
                 creep.transferTo(creep.room.powerSpawn, RESOURCE_ENERGY) == OK
                     || (creep.room.storage.store.getFreeCapacity() > 0.2 * creep.room.storage.store.getCapacity() 
                     && creep.transferTo(creep.room.storage, RESOURCE_ENERGY) == OK)
-                    || creep.transferTo(creep.room.nuker, RESOURCE_ENERGY) == OK
+                    // || creep.transferTo(creep.room.nuker, RESOURCE_ENERGY) == OK
                     || creep.transferTo(creep.room.terminal, RESOURCE_ENERGY) == OK
                     // Ghodium
                     || creep.transferTo(creep.room.nuker, RESOURCE_GHODIUM) == OK
@@ -61,7 +61,10 @@ const roleProcessor: FuncDict = {
             else {
                 // energy
                 creep.getEngryFrom(creep.room.centerLink) == OK
-                    || creep.getEngryFrom(creep.room.storage) == OK
+                    || (creep.room.storage.store.getUsedCapacity(RESOURCE_ENERGY) > 0.2 * creep.room.storage.store.getCapacity() 
+                    && creep.getEngryFrom(creep.room.storage) == OK)
+                    ||(creep.room.terminal.store.getUsedCapacity(RESOURCE_ENERGY) > 0.2 * creep.room.terminal.store.getCapacity() 
+                    &&creep.getEngryFrom(creep.room.terminal) == OK)
                     // Ghodium
                     || creep.withdraw(creep.room.terminal, RESOURCE_GHODIUM) == OK
                     // Power
