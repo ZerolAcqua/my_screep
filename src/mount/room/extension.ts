@@ -1,6 +1,8 @@
 import { createRoomLink, log } from "@/utils";
 import { creepApi } from "@/modules/creepController";
 import { isBodyPartConstantArray, whiteListFilter } from "@/utils";
+import { ROOM_TRANSFER_TASK } from '@/setting'
+
 
 /**
  * @description
@@ -100,14 +102,16 @@ export class RoomExtension extends Room {
         })
 
         this.addBuildTask();
-        this.doSpawnTask();
+        // this.doSpawnTask();
 
-        this.defendEnemy() || this.repairBuilding();
+        // this.defendEnemy() || this.repairBuilding();
 
         if (!(Game.time % 20)) {
             this.stateScanner()
         }
     }
+
+    //////////////////////////////////////////////////////////////////////////////
 
     /**
      * 向房间中发布 power 请求任务
@@ -168,6 +172,7 @@ export class RoomExtension extends Room {
         this.memory.powerTasks.shift()
     }
 
+    ////////////////////////////////////////////////////
 
     /**
      * @description
@@ -199,7 +204,17 @@ export class RoomExtension extends Room {
     }
 
     /**
+     * 将当前任务挂起
+     * 任务会被移动至队列末尾
+     */
+    public hangSpawnTask(): void {
+        const task = this.memory.spawnList.shift()
+        this.memory.spawnList.push(task)
+    }
+
+    /**
      * 从生产队列中取出任务进行孵化
+     * @brief 自编的临时函数
      * @todo 这里写死了房间的 Spawn 名字，需要改成自动获取
      * @bug
      * @returns OK| ERR_NOT_ENOUGH_ENERGY| ERR_BUSY
@@ -248,6 +263,7 @@ export class RoomExtension extends Room {
 
 
     /**
+     * @brief 自编的临时函数
      * @description
      * 在需要孵化建造者时进行孵化
      * @deprecated 这个函数有点套娃，需要重构
@@ -278,6 +294,100 @@ export class RoomExtension extends Room {
         }
     }
 
+    //////////////////////////////////////////////////////////////
+
+    /**
+     * 向房间物流任务队列推送新的任务
+     * 
+     * @param task 要添加的任务
+     * @param priority 任务优先级位置，默认追加到队列末尾。例：该值为 0 时将无视队列长度直接将任务插入到第一个位置
+     * @returns 任务的排队位置, 0 是最前面，-1 为添加失败（已有同种任务）
+     */
+    public addRoomTransferTask(task: RoomTransferTasks, priority: number = null): number {
+        if (this.hasRoomTransferTask(task.type)) return -1
+
+        // 默认追加到队列末尾
+        if (!priority) {
+            this.memory.transferTasks.push(task)
+            return this.memory.transferTasks.length - 1
+        }
+        // 追加到队列指定位置
+        else {
+            this.memory.transferTasks.splice(priority, 0, task)
+            return priority < this.memory.transferTasks.length ? priority : this.memory.transferTasks.length - 1
+        }
+    }
+
+    /**
+     * 是否有相同的房间物流任务
+     * 房间物流队列中一种任务只允许同时存在一个
+     * 
+     * @param taskType 任务类型
+     */
+    public hasRoomTransferTask(taskType: string): boolean {
+        if (!this.memory.transferTasks) this.memory.transferTasks = []
+        
+        const task = this.memory.transferTasks.find(task => task.type === taskType)
+        return task ? true : false
+    }
+
+    /**
+     * 获取当前的房间物流任务
+     */
+    public getRoomTransferTask(): RoomTransferTasks | null {
+        if (!this.memory.transferTasks) this.memory.transferTasks = []
+        
+        if (this.memory.transferTasks.length <= 0) {
+            return null
+        }
+        else {
+            return this.memory.transferTasks[0]
+        }
+    }
+
+
+    /**
+     * 更新 labIn 任务信息
+     * @param resourceType 要更新的资源 id
+     * @param amount 要更新成的数量
+     */
+    public handleLabInTask(resourceType: ResourceConstant, amount: number): boolean {
+        const currentTask = <ILabIn>this.getRoomTransferTask()
+        // 判断当前任务为 labin
+        if (currentTask.type == ROOM_TRANSFER_TASK.LAB_IN) {
+            // 找到对应的底物
+            for (const index in currentTask.resource) {
+                if (currentTask.resource[Number(index)].type == resourceType) {
+                    // 更新底物数量
+                    currentTask.resource[Number(index)].amount = amount
+                    break
+                }
+            }
+            // 更新对应的任务
+            this.memory.transferTasks.splice(0, 1, currentTask)
+            return true
+        }
+        else return false
+    }
+
+    /**
+     * 移除当前处理的房间物流任务
+     * 并统计至 Memory.stats
+     */
+    public deleteCurrentRoomTransferTask(): void {
+        const finishedTask = this.memory.transferTasks.shift()
+
+        // // 先兜底
+        if (!Memory.stats) Memory.stats = { rooms: {} }
+        if (!Memory.stats.roomTaskNumber) Memory.stats.roomTaskNumber = {}
+
+        // 如果这个任务之前已经有过记录的话就增 1
+        if (Memory.stats.roomTaskNumber[finishedTask.type]) Memory.stats.roomTaskNumber[finishedTask.type] += 1
+        // 没有就设为 1
+        else Memory.stats.roomTaskNumber[finishedTask.type] = 1
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
 
     /** 
      * @description
@@ -345,7 +455,7 @@ export class RoomExtension extends Room {
             targets = this.find(FIND_STRUCTURES, {
                 filter: (structure) => {
                     // 初始值为 0.0005
-                    return structure.hits < 300000 && structure.structureType == STRUCTURE_WALL;
+                    return structure.hits < 1200000 && structure.structureType == STRUCTURE_WALL;
                 }
             });
             // // 对 targets 按 hits 从小到大排序
@@ -372,5 +482,4 @@ export class RoomExtension extends Room {
         // 统计房间内爬的数量
         Memory.stats.rooms[this.name].creepNum = this.find(FIND_MY_CREEPS).length
     }
-
 }

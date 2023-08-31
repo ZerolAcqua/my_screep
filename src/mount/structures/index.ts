@@ -9,7 +9,7 @@ import { ObserverExtension } from './observer'
 import { NukerExtension } from './nuker'
 import { PowerSpawnExtension } from './powerSpawn'
 import { TowerExtension } from './tower'
-
+import { SpawnExtension } from './spawn'
 
 // 拓展和原型的对应关系
 const assignMap = [
@@ -22,7 +22,8 @@ const assignMap = [
     [ StructureObserver, ObserverExtension ],
     [ StructureNuker, NukerExtension ],
     [ StructurePowerSpawn, PowerSpawnExtension ],
-    [ StructureTower, TowerExtension ]
+    [ StructureTower, TowerExtension ],
+    [ StructureSpawn, SpawnExtension]
 ]
 
 // 挂载拓展到建筑原型

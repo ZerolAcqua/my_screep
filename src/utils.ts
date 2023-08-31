@@ -13,6 +13,28 @@ export function generatePixel(): OK | ERR_NOT_ENOUGH_RESOURCES {
     else return ERR_NOT_ENOUGH_RESOURCES
 }
 
+
+/**
+ * @author HoPGoldy
+ * @abstract执行 Hash Map 中子元素对象的 work 方法
+ * 
+ * @param hashMap 游戏对象的 hash map。如 Game.creeps、Game.spawns 等
+ * @param showCpu [可选] 传入指定字符串来启动该 Map 的数量统计
+ */
+export function doing(...hashMaps: object[]): void {
+    hashMaps.forEach((obj, index) => {
+        let startCost = Game.cpu.getUsed()
+
+        // 遍历执行 work
+        Object.values(obj).forEach(item => {
+            if (item.work) item.work()
+        })
+
+        // 如果有需求的话就显示 cpu 消耗
+        if (Memory.showCost) log(`消耗 ${Game.cpu.getUsed() - startCost}`, [ `[${index}]` ])
+    })
+}
+
 /**
  * @author HoPGoldy
  * @abstract 获取指定方向的相反方向
@@ -125,6 +147,7 @@ export function generBodyParts (bodyPartDict: { [key in BodyPartConstant]?: numb
     }
     return bodyParts
 }
+
 
 /**
  * @author ZerolAcqua

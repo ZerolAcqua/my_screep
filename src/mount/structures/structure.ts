@@ -15,4 +15,9 @@ export class StructureExtension extends Structure {
      */
     public onBuildComplete(): void {
     }
+
+    // 建筑通用的日志方法
+    log(content:string, color: Colors | undefined = undefined, notify: boolean = false): void {
+        this.room.log(content, this.structureType, color, notify)
+    }
 }

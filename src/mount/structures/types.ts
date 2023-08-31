@@ -7,6 +7,7 @@ interface Structure {
      * 建筑建造完成时执行
      */
     onBuildComplete(): void
+    log(content:string, color?: Colors | undefined, notify?: boolean): void
 }
 
 interface StructurePowerSpawn {
@@ -30,4 +31,9 @@ interface StructurePowerSpawn {
      * 用户操作 - 帮助信息
      */
     help(): string
+}
+
+interface StructureController{
+    onLevelChange(level: number): void
+    checkEnemyThreat(): boolean
 }

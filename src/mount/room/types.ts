@@ -1,7 +1,5 @@
 interface RoomMemory {
-    // 由驻守在房间中的 pc 发布，包含了 pc 拥有对应的能力
-    // 形如: "1 3 13 14"，数字即为对应的 PWR_* 常量
-    powers?: string
+
 
     /**
      * 房间中央集群核心位置
@@ -18,13 +16,32 @@ interface RoomMemory {
     factoryId?: string
     powerSpawnId?: string
 
+    // 当前被 repairer 或 tower 关注的墙
+    focusWall: {
+        id: string
+        endTime: number
+    }
+
+    // 当前房间所处的防御模式
+    // defense 为基础防御，active 为主动防御，该值未定义时为日常模式
+    defenseMode?: 'defense' | 'active'
+
+    
     // 房间的孵化队列
     spawnList: string[]
+
+    // 房间物流任务队列
+    transferTasks: RoomTransferTasks[]
+
     // 该房间禁止通行点的存储
     // 键为注册禁止通行点位的 creep 名称，值为禁止通行点位 RoomPosition 对象的序列字符串
     restrictedPos?: {
         [creepName: string]: string
     }
+
+    // 由驻守在房间中的 pc 发布，包含了 pc 拥有对应的能力
+    // 形如: "1 3 13 14"，数字即为对应的 PWR_* 常量
+    powers?: string
     // powerSpawn 是否暂停
     pausePS?: boolean
     // power 任务请求队列
@@ -68,22 +85,24 @@ interface RoomMemory {
 }
 
 interface Room {
-    //  // 已拥有的房间特有，tower 负责维护
-    //  _enemys: (Creep|PowerCreep)[]
-    //  // 需要维修的建筑，tower 负责维护，为 1 说明建筑均良好
-    //  _damagedStructure: AnyStructure | 1
-    //  // 该 tick 是否已经有 tower 刷过墙了
-    //  _hasFillWall: boolean
-    //  // 外矿房间特有，外矿单位维护
-    //  // 一旦该字段为 true 就告诉出生点暂时禁止自己重生直到 1500 tick 之后
-    //  _hasEnemy: boolean
-    //  // 焦点墙，维修单位总是倾向于优先修复该墙体
-    //  _importantWall: StructureWall | StructureRampart
-    //  // 该房间是否已经执行过 lab 集群作业了
-    //  // 在 Lab.work 中调用，一个房间只会执行一次
-    //  _hasRunLab: boolean
-    //  // 该房间是否已经运行过工地作业了
-    //  _hasRunConstructionSite: boolean
+
+    // 已拥有的房间特有，tower 负责维护
+    _enemys: (Creep|PowerCreep)[]
+    // 需要维修的建筑，tower 负责维护，为 1 说明建筑均良好
+    _damagedStructure: AnyStructure | 1
+    // 该 tick 是否已经有 tower 刷过墙了
+    _hasFillWall: boolean
+    // 外矿房间特有，外矿单位维护
+    // 一旦该字段为 true 就告诉出生点暂时禁止自己重生直到 1500 tick 之后
+    _hasEnemy: boolean
+    // 焦点墙，维修单位总是倾向于优先修复该墙体
+    _importantWall: StructureWall | StructureRampart
+    // 该房间是否已经执行过 lab 集群作业了
+    // 在 Lab.work 中调用，一个房间只会执行一次
+    _hasRunLab: boolean
+    // 该房间是否已经运行过工地作业了
+    _hasRunConstructionSite: boolean
+
 
     // 房间基础服务
     factory?: StructureFactory
@@ -114,7 +133,7 @@ interface Room {
      * @param color 日志前缀颜色
      * @param notify 是否发送邮件
      */
-    log(content: string, instanceName: string, color: Colors | undefined, notify: boolean): void
+    log(content: string, instanceName?: string, color?: Colors | undefined, notify?: boolean): void
 
     /**
      * 设置房间中央集群核心位置
@@ -163,39 +182,24 @@ interface Room {
      */
     work(): void
 
-
+    // 房间 pc 孵化 api
     addPowerTask(task: PowerConstant, priority: number): OK | ERR_NAME_EXISTS | ERR_INVALID_TARGET
-
-    /**
-     * 获取当前的 power 任务
-     */
     getPowerTask(): PowerConstant | undefined
-
-    /**
-     * 挂起当前任务
-     * 将会把最前面的 power 任务移动到队列末尾
-     */
     hangPowerTask(): void
-
-    /**
-     * 移除第一个 power 任务
-     */
     deleteCurrentPowerTask(): void
-
-    /**
-     * TODO: 未完成
-     * 房间孵化
-     * @param creepName 要孵化的 creep 名称
-     */
     addSpawnTask(creepName: string): number | ERR_NAME_EXISTS
 
-    /**
-     * 检查生产队列中是否包含指定任务
-     * 
-     * @param taskName 要检查的任务名
-     * @returns true/false 有/没有
-     */
+    // 房间 creep 孵化 api
     hasSpawnTask(taskName: string): boolean
+    hangSpawnTask(): void 
+
+    // 房间物流 api
+    addRoomTransferTask(task: RoomTransferTasks, priority?: number): number
+    hasRoomTransferTask(taskType: string): boolean
+    getRoomTransferTask(): RoomTransferTasks | null
+    handleLabInTask(resourceType: ResourceConstant, amount: number): boolean
+    deleteCurrentRoomTransferTask(): void
+
 
     /**
      * 房间防御

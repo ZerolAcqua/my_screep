@@ -180,11 +180,11 @@ interface CreepMemory {
     // 内置移动缓存
     _move?: Object
 
+    // creep 的角色
+    role: CreepRoleConstant
 
-    /**
-     * 该 creep 的角色
-     */
-    role: string
+    // creep 在工作时需要的自定义配置，在孵化时由 spawn 复制
+    data?: CreepData
 
     /**
      * 该 creep 的目标
@@ -192,6 +192,10 @@ interface CreepMemory {
     targetId?: string
     sourceId?: string
 
+    // TODO:要填充的墙 id 
+    fillWallId?: string
+    // manager 特有 要填充能量的建筑 id
+    fillStructureId?: string
     // TODO: 建筑工特有，当前缓存的建筑工地（目前只有外矿采集者在用）
     constructionSiteId?: string
 
