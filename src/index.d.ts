@@ -205,6 +205,19 @@ interface EmptyData { }
  * 采集单位的 data
  * 执行从 sourceId 处采集东西，并转移至 targetId 处（不一定使用，每个角色都有自己固定的目标例如 storage 或者 terminal）
  */
+interface HarvesterData {
+    // 要采集的 source id
+    sourceId: string
+    // 把采集到的资源存到哪里存在哪里
+    targetId: string
+}
+
+
+/**
+ * @Todo
+ * 采集单位的 data
+ * 执行从 sourceId 处采集东西，并转移至 targetId 处（不一定使用，每个角色都有自己固定的目标例如 storage 或者 terminal）
+ */
 interface CarrierData {
     // 要采集的 source id
     sourceId: string
@@ -235,10 +248,13 @@ interface ProcessorData {
  */
 type BodyAutoConfigConstant =
     'harvester' |
-    'worker' |
+    'repairer' |
+    'builder' |
     'upgrader' |
+    'carrier' |
+    'digger' |
+    'worker' |
     'processor'
-
 
 interface ICreepConfig {
     // 每次死后都会进行判断，只有返回 true 时才会重新发布孵化任务

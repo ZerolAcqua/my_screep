@@ -88,7 +88,7 @@ const roleCollector: FuncDict = {
             { filter: { structureType: STRUCTURE_CONTAINER } })[0].pos;
 
         
-        creep.memory.target = creep.findLink(pos)
+        creep.memory.targetId = creep.findLink(pos)
         creep.goTo(pos)
         creep.memory.ready = (creep.pos.x==pos.x&&creep.pos.y==pos.y)
 
@@ -101,12 +101,12 @@ const roleCollector: FuncDict = {
         const config = Memory.creepConfigs[creep.name]
         const data = config.data as WorkerData
         const source = Game.getObjectById(data.sourceId) as Source
-        if(creep.memory.target==null){
+        if(creep.memory.targetId==null){
             creep.getEngryFrom(source)
         }
         else{
             if (creep.shouldWork()) {
-                creep.transferTo(Game.getObjectById(creep.memory.target) as Structure, RESOURCE_ENERGY)
+                creep.transferTo(Game.getObjectById(creep.memory.targetId) as Structure, RESOURCE_ENERGY)
                 
             }
             else {

@@ -1,10 +1,7 @@
-// import { minerHervesteLimit, ROOM_TRANSFER_TASK } from 'setting'
-// import { getRoomTransferTask, transferTaskOperations } from './advanced'
-
-// /**
-//  * 初级房间运维角色组
-//  * 本角色组包括了在没有 Storage 和 Link 的房间内运维所需的角色
-//  */
+/**
+ * 初级房间运维角色组
+ * 本角色组包括了在没有 Storage 和 Link 的房间内运维所需的角色
+ */
 // const roles: {
 //     [role in BaseRoleConstant]: (data: CreepData) => ICreepConfig
 // } = {
@@ -63,7 +60,7 @@
 //                 creep.getEngryFrom(Game.getObjectById(data.sourceId))
 //                 return false
 //             }
-            
+
 //             // 获取 prepare 阶段中保存的 targetId
 //             let target = Game.getObjectById<StructureContainer | Source>(creep.memory.targetId)
 
@@ -193,7 +190,7 @@
 //                 room.memory.mineralCooldown = Game.time + 10000
 //                 return false
 //             }
-            
+
 //             return true
 //         },
 //         prepare: creep => {
@@ -267,7 +264,7 @@
 //             if (task && (task.type === ROOM_TRANSFER_TASK.FILL_EXTENSION || task.type === ROOM_TRANSFER_TASK.FILL_TOWER)) {
 //                 return transferTaskOperations[task.type].target(creep, task)
 //             }
-            
+
 //             // 空闲时间会尝试把能量存放到 storage 里
 //             if (!creep.room.storage) return false
 
@@ -384,7 +381,7 @@
 //             // 先尝试获取焦点墙，有最新的就更新缓存，没有就用缓存中的墙
 //             if (importantWall) creep.memory.fillWallId = importantWall.id
 //             else if (creep.memory.fillWallId) importantWall = Game.getObjectById(creep.memory.fillWallId)
-            
+
 //             // 有焦点墙就优先刷
 //             if (importantWall) {
 //                 const actionResult = creep.repair(creep.room._importantWall)
@@ -393,7 +390,7 @@
 //                         creep.memory.standed = true
 //                         creep.room.addRestrictedPos(creep.name, creep.pos)
 //                     }
-                    
+
 //                     // 离墙三格远可能正好把路堵上，所以要走进一点
 //                     if (!creep.room._importantWall.pos.inRangeTo(creep.pos, 2)) creep.goTo(creep.room._importantWall.pos)
 //                 }
@@ -408,4 +405,458 @@
 //     })
 // }
 
-// export default roles
+
+
+
+
+
+const roles: {
+    [role in BaseRoleConstant]: (data: CreepData) => ICreepConfig
+} = {
+/**
+     * 采集者
+     * 从指定 source 中获取能量 > 将能量存放到身下的 container 中
+     */
+    harvester: (data: HarvesterData): ICreepConfig => ({
+        // 向 container 或者 source 移动
+        // 在这个阶段中，targetId 是指 container 或 conatiner 的工地或 source
+        prepare: creep => {
+            let target: StructureContainer | Source | ConstructionSite
+            // 如果有缓存的话就获取缓存
+            if (creep.memory.targetId) target = Game.getObjectById<StructureContainer | Source>(creep.memory.sourceId)
+            const source = Game.getObjectById<Source>(data.sourceId)
+
+            // 没有缓存或者缓存失效了就重新获取
+            if (!target) {
+                // 先尝试获取 container
+                const containers = source.pos.findInRange<StructureContainer>(FIND_STRUCTURES, 1, {
+                    filter: s => s.structureType === STRUCTURE_CONTAINER
+                })
+
+                // 找到了就把 container 当做目标
+                if (containers.length > 0) target = containers[0]
+            }
+
+            // 还没找到就找 container 的工地
+            if (!target) {
+                const constructionSite = source.pos.findInRange(FIND_CONSTRUCTION_SITES, 1, {
+                    filter: s => s.structureType === STRUCTURE_CONTAINER
+                })
+
+                if (constructionSite.length > 0) target = constructionSite[0]
+            }
+
+            // 如果还是没找到的话就用 source 当作目标
+            if (!target) target = source
+            creep.memory.targetId = target.id
+
+            // 设置移动范围并进行移动（source 走到附近、container 和工地就走到它上面）
+            const range = target instanceof Source ? 1 : 0
+            creep.goTo(target.pos, range)
+
+            // 抵达位置了就准备完成
+            if (creep.pos.inRangeTo(target.pos, range)) return true
+            return false
+        },
+        // 因为 prepare 准备完之后会先执行 source 阶段，所以在这个阶段里对 container 进行维护
+        // 在这个阶段中，targetId 仅指 container
+        source: creep => {
+            creep.say('🚧')
+
+            // 没有能量就进行采集，因为是维护阶段，所以允许采集一下工作一下
+            if (creep.store[RESOURCE_ENERGY] <= 0) {
+                creep.getEngryFrom(Game.getObjectById(data.sourceId))
+                return false
+            }
+            
+            // 获取 prepare 阶段中保存的 targetId
+            let target = Game.getObjectById<StructureContainer | Source>(creep.memory.targetId)
+
+            // 存在 container，把血量修满
+            if (target && target instanceof StructureContainer) {
+                creep.repair(target)
+                // 血修满了就正式进入采集阶段
+                return target.hits >= target.hitsMax
+            }
+
+            // 不存在 container，开始新建，首先尝试获取工地缓存，没有缓存就新建工地
+            let constructionSite: ConstructionSite
+            if (!creep.memory.constructionSiteId) creep.pos.createConstructionSite(STRUCTURE_CONTAINER)
+            else constructionSite = Game.getObjectById<ConstructionSite>(creep.memory.constructionSiteId)
+
+            // 没找到工地缓存或者工地没了，重新搜索
+            if (!constructionSite) constructionSite = creep.pos.lookFor(LOOK_CONSTRUCTION_SITES).find(s => s.structureType === STRUCTURE_CONTAINER)
+
+            // 还没找到就说明有可能工地已经建好了，进行搜索
+            if (!constructionSite) {
+                const container = creep.pos.lookFor(LOOK_STRUCTURES).find(s => s.structureType === STRUCTURE_CONTAINER)
+
+
+                // // TODO: 
+                // // 找到了造好的 container 了，添加进房间
+                // if (container) {
+                //     creep.room.registerContainer(container as StructureContainer)
+                //     return true
+                // }
+
+                // 还没找到，等下个 tick 会重新新建工地
+                return false
+            }
+            // 找到了就缓存 id
+            else creep.memory.constructionSiteId = constructionSite.id
+
+            creep.build(constructionSite)
+        },
+        // 采集阶段会无脑采集，过量的能量会掉在 container 上然后被接住存起来
+        target: creep => {
+            creep.getEngryFrom(Game.getObjectById(data.sourceId))
+
+            // 快死了就把身上的能量丢出去，这样就会存到下面的 container 里，否则变成墓碑后能量无法被 container 自动回收
+            if (creep.ticksToLive < 2) creep.drop(RESOURCE_ENERGY)
+            return false
+        },
+        bodys: 'harvester'
+    }),
+    digger: (data: CreepData) => ({
+        target: () => true,
+        bodys: 'digger'
+    }),
+    carrier: (data: CreepData) => ({
+        target: () => true,
+        bodys: 'carrier'
+    }),
+    upgrader: (data: CreepData) => ({
+        target: () => true,
+        bodys: 'upgrader'
+    }),
+    builder: (data: CreepData) => ({
+        target: () => true,
+        bodys: 'builder'
+    }),
+    repairer: (data: CreepData) => ({
+        target: () => true,
+        bodys: 'repairer'
+    }),
+}
+/** 采集者角色
+*   用于初始启动的角色
+*   @deprecated
+*/
+const roleHarvester: FuncDict = {
+    /** 
+     * @param {Creep} creep 
+     */
+    run: function (creep: Creep) {
+        if (creep.shouldWork()) {
+            creep.fillSpawnEngery()
+
+        }
+        else {
+            creep.harvestEnergy(0)
+        }
+    },
+    /**
+     * 该 creep 是否需要重生
+     */
+    isNeed(room: Room, name: string, creepMemory: CreepMemory) {
+        if (Object.keys(Game.creeps).length > 2) return false
+        else return true
+    }
+};
+
+/** 
+ * @description 
+ * 采能者角色：采集能源
+ * @finish
+ */
+const roleDigger: FuncDict = {
+
+    /** 
+     * @param {Creep} creep 
+     */
+    prepare: function (creep: Creep): void {
+
+        const config = Memory.creepConfigs[creep.name]
+        const data = config.data as WorkerData
+        const source = Game.getObjectById(data.sourceId) as Source | Mineral
+
+        const pos = source.pos.findInRange(FIND_STRUCTURES, 1,
+            { filter: { structureType: STRUCTURE_CONTAINER } })[0].pos;
+
+
+        if (creep.pos.x != pos.x || creep.pos.y != pos.y) {
+            creep.goTo(pos)
+        }
+        else {
+            creep.memory.ready = true
+        }
+    },
+
+    /** 
+     * @param {Creep} creep 
+     */
+    run: function (creep: Creep) {
+        const config = Memory.creepConfigs[creep.name]
+        const data = config.data as WorkerData
+        const source = Game.getObjectById(data.sourceId) as Source
+        creep.getEngryFrom(source)
+
+    },
+    /**
+     * 该 creep 需要重生
+     */
+};
+
+
+/** 
+ * @description 
+ * 收集者角色：采集能源
+ * @finish
+ */
+const roleCollector: FuncDict = {
+
+    /** 
+     * @param {Creep} creep 
+     */
+    prepare: function (creep: Creep): void {
+
+        const config = Memory.creepConfigs[creep.name]
+        const data = config.data as WorkerData
+        const source = Game.getObjectById(data.sourceId) as Source
+
+        const pos = source.pos.findInRange(FIND_STRUCTURES, 1,
+            { filter: { structureType: STRUCTURE_CONTAINER } })[0].pos;
+
+
+        creep.memory.targetId = creep.findLink(pos)
+        creep.goTo(pos)
+        creep.memory.ready = (creep.pos.x == pos.x && creep.pos.y == pos.y)
+
+    },
+
+    /** 
+     * @param {Creep} creep 
+     */
+    run: function (creep: Creep) {
+        const config = Memory.creepConfigs[creep.name]
+        const data = config.data as WorkerData
+        const source = Game.getObjectById(data.sourceId) as Source
+        if (creep.memory.targetId == null) {
+            creep.getEngryFrom(source)
+        }
+        else {
+            if (creep.shouldWork()) {
+                creep.transferTo(Game.getObjectById(creep.memory.targetId) as Structure, RESOURCE_ENERGY)
+
+            }
+            else {
+                creep.getEngryFrom(source)
+            }
+        }
+    },
+    /**
+     * 该 creep 需要重生
+     */
+};
+
+
+/** 
+ * @description 
+ * 搬运者角色，目前只考虑从 container 搬运能量
+ * @todo
+ * @deprecated
+ */
+const roleCarrier: FuncDict = {
+    /** 
+     * @param {Creep} creep 
+     */
+    run: function (creep: Creep) {
+        if (creep.shouldWork()) {
+            creep.fillSpawnEngery() || creep.fillTower() || creep.fillStorage() || creep.fillTerminal()
+        }
+        else {
+            const config = Memory.creepConfigs[creep.name]
+            const data = config.data as CarrierData
+            const source = Game.getObjectById(data.sourceId) as StructureStore
+
+            if (!creep.pos.inRangeTo(source.pos, 1)) {
+                creep.goTo(source.pos)
+                return
+            }
+            creep.getEngryFrom(source)
+        }
+    },
+    /**
+     * 该 creep 需要重生
+     */
+};
+
+/**
+ * @description 
+ * 升级者角色
+ */
+const roleUpgrader: FuncDict = {
+
+    /** 
+     * @param {Creep} creep 
+     */
+    prepare: function (creep: Creep): void {
+        // 这里的逻辑要更改，不能直接写死坐标
+        creep.goTo(creep.room.getPositionAt(32, 22))
+        creep.memory.ready = (creep.pos.x == 32 && creep.pos.y == 22)
+        creep.memory.working = false
+    },
+
+    /** @param {Creep} creep **/
+    run: function (creep: Creep) {
+        if (creep.shouldWork()) {
+            if (creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
+                // creep.goTo(creep.room.controller, {visualizePathStyle: {stroke: '#ffffff'}});
+                creep.goTo(creep.room.getPositionAt(32, 22));
+            }
+        }
+        else {
+            // var sources = creep.room.find(FIND_SOURCES);
+            // if (creep.harvest(sources[1]) == ERR_NOT_IN_RANGE) {
+            //     creep.goTo(sources[1], { visualizePathStyle: { stroke: '#ffaa00' } });
+            // }
+            // creep.withdrawEnergy()
+            // creep.harvestEnergy(1)
+            creep.getEngryFrom(Game.getObjectById(creep.room.memory['upgradeLinkId']) as Structure)
+        }
+    },
+    /**
+     * 该 creep 需要重生
+     */
+
+
+};
+
+
+/** 
+ * @description
+ * 建造者角色
+ * 
+ */
+const roleBuilder: FuncDict = {
+    /** @param {Creep} creep **/
+    run: function (creep: Creep, resourceId = 1) {
+
+
+        if (creep.shouldWork()) {
+            if (creep.buildStructure() == false) {
+                var targets = creep.room.find(FIND_STRUCTURES, {
+                    filter: (structure) => {
+                        return (structure.hits < 2000 && structure.structureType == STRUCTURE_RAMPART);
+                    }
+                });
+                if (targets.length) {
+                    if (creep.repair(targets[0]) == ERR_NOT_IN_RANGE) {
+                        creep.goTo(targets[0].pos);
+                    }
+                }
+                else {
+                    creep.repairRamptWall()
+                }
+            }
+        }
+        else {
+            // creep.harvestEnergy(1);
+            // creep.withdrawEnergy()
+            const source = Game.getObjectById<Structure>(creep.room.memory['storageId'])
+            if (!creep.pos.inRangeTo(source.pos, 1)) {
+                creep.goTo(source.pos)
+                return
+            }
+            creep.getEngryFrom(source)
+        }
+    },
+    /**
+     * 该 creep 是否需要重生
+     */
+    isNeed(room: Room, name: string, creepMemory: CreepMemory) {
+        return room.find(FIND_CONSTRUCTION_SITES).length > 0
+    }
+};
+
+/**
+ * @description
+ * 修理者角色
+ * @danger 还未适配新的 creepConfig
+ */
+
+const roleRepairer: FuncDict = {
+    /** @param {Creep} creep **/
+    run: function (creep: Creep) {
+        if (creep.shouldWork()) {
+
+            // // 修理 container
+            // var targets = creep.room.find(FIND_STRUCTURES, {
+            //     filter: (structure) => {
+            //         return structure.hits < 0.9 * structure.hitsMax && structure.structureType == STRUCTURE_CONTAINER;
+            //     }
+            // });
+
+
+            // // 修理 road
+            // if (!targets.length) {
+            //     targets = creep.room.find(FIND_STRUCTURES, {
+            //         filter: (structure) => {
+            //             return structure.hits < 0.9 * structure.hitsMax && structure.structureType == STRUCTURE_ROAD;
+            //         }
+            //     });
+            // }
+
+            // // 修理 rampart
+            // if (!targets.length) {
+            //     targets = creep.room.find(FIND_STRUCTURES, {
+            //         filter: (structure) => {
+            //             return (structure.hits < 0.1
+            //                 * structure.hitsMax && structure.structureType == STRUCTURE_RAMPART);
+            //         }
+            //     });
+            // }
+
+            // // 修理 wall
+            // if(!targets.length)
+            // {
+            //     targets = creep.room.find(FIND_STRUCTURES, {
+            //             filter: (structure) => {
+            //                 return structure.hits<0.0005*structure.hitsMax &&  structure.structureType == STRUCTURE_WALL;
+            //         }
+            //     });
+            // }
+
+            // if (targets.length) {
+            //     if (creep.repair(targets[0]) == ERR_NOT_IN_RANGE) {
+            //         creep.goTo(targets[0], { visualizePathStyle: { stroke: '#ff0000' } });
+            //     }
+            // }
+
+            creep.repairRamptWall()
+        }
+        else {
+            // var sources = creep.room.find(FIND_SOURCES);
+            // if (creep.harvest(sources[1]) == ERR_NOT_IN_RANGE) {
+            //     creep.goTo(sources[1], { visualizePathStyle: { stroke: '#ffaa00' } });
+            // }
+            creep.getEngryFrom(Game.getObjectById<Structure>(creep.room.memory['storageId']))
+        }
+    },
+    /**
+     * 该 creep 需要重生
+     */
+};
+
+
+export default roles
+
+// export const basicRoles: { [key: string]: FuncDict } = {
+//     "harvester": roleHarvester,
+//     "digger": roleDigger,
+//     "collector": roleCollector,
+//     "carrier": roleCarrier,
+//     "upgrader": roleUpgrader,
+//     "builder": roleBuilder,
+//     "repairer": roleRepairer
+// }

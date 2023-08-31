@@ -41,6 +41,7 @@ export const loop = errorMapper(() => {
     // creep 数量控制
     creepNumberListener();
 
+    
     // creep 运转
     const creeps = Object.values(Game.creeps) as Creep[]
     creeps.forEach((creep) => { 
@@ -48,6 +49,8 @@ export const loop = errorMapper(() => {
         creep.work()
     })
 
+
+    
     // powercreep 运转
     const powerCreeps = Object.values(Game.powerCreeps) as PowerCreep[]
     powerCreeps.forEach((powerCreep) => { if(powerCreep.work)powerCreep.work() })

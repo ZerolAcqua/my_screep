@@ -361,57 +361,17 @@ export class CreepExtension extends Creep {
         return OK
     }
 
-
-    // _move(direction: DirectionConstant): CreepMoveReturnCode
-    // _move(target: Creep): OK | ERR_NOT_OWNER | ERR_BUSY | ERR_NOT_IN_RANGE | ERR_INVALID_ARGS
-
-    // /**
-    //  * 向指定方向移动
-    //  * 
-    //  * @param direction 要移动到的方向
-    //  * @returns ERR_INVALID_TARGET 发生撞停
-    //  */
-    // myMove(direction: DirectionConstant): CreepMoveReturnCode{
-    //     // const baseCost = Game.cpu.getUsed()
-    //     // 进行移动，并分析其移动结果，OK 时才有可能发生撞停
-    //     const moveResult = this._move(direction)
-
-    //     if (moveResult != OK) return moveResult
-
-    //     const currentPos = `${this.pos.x}/${this.pos.y}`
-    //     // 如果和之前位置重复了就分析撞上了啥
-    //     if (this.memory.prePos && currentPos == this.memory.prePos) {
-    //         // 尝试对穿，如果自己禁用了对穿的话则直接重新寻路
-    //         const crossResult = this.memory.disableCross ? ERR_BUSY : this.mutualCross(direction)
-
-    //         // 没找到说明撞墙上了或者前面的 creep 拒绝对穿，重新寻路
-    //         if (crossResult != OK) {
-    //             delete this.memory._move
-    //             return ERR_INVALID_TARGET
-    //         }
-    //     }
-
-    //     // 没有之前的位置或者没重复就正常返回 OK 和更新之前位置
-    //     this.memory.prePos = currentPos
-
-    //     return OK
-    // }
-
-    // myMove(target: Creep): OK | ERR_NOT_OWNER | ERR_BUSY | ERR_NOT_IN_RANGE | ERR_INVALID_ARGS{
-    //     return this._move(target)
-    // }
-
-
     /**
      * 无视 Creep 的寻路
      * 
      * @param target 要移动到的位置
      */
-    public goTo(target: RoomPosition): CreepMoveReturnCode | ERR_NO_PATH | ERR_INVALID_TARGET | ERR_NOT_FOUND {
+    public goTo(target: RoomPosition, range: number=0): CreepMoveReturnCode | ERR_NO_PATH | ERR_INVALID_TARGET | ERR_NOT_FOUND {
         // const baseCost = Game.cpu.getUsed()
         const moveResult = this.moveTo(target, {
             reusePath: 20,
             ignoreCreeps: true,
+            range: range,
             costCallback: (roomName, costMatrix) => {
                 if (roomName === this.room.name) {
                     // 避开房间中的禁止通行点
