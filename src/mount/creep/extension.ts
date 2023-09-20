@@ -31,7 +31,7 @@ export class CreepExtension extends Creep {
 
     // 寻找指定位置附近的 Link
     findLink(pos: RoomPosition): string | null {
-        var targets = pos.findInRange(FIND_STRUCTURES, 1, {
+        var targets = pos.findInRange(FIND_STRUCTURES, 2, {
             filter: (structure) => {
                 return structure.structureType == STRUCTURE_LINK;
             }

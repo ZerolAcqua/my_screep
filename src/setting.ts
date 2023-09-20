@@ -6,10 +6,11 @@ export const repairSetting = {
     // 在 tower 的能量高于该值时才会刷墙
     energyLimit: 600, 
     // 普通建筑维修的检查间隔
-    checkInterval: 8, 
+    // checkInterval: 8, 
+    checkInterval: 5, 
     // 墙壁维修的检查间隔
-    // wallCheckInterval: 3,
-    wallCheckInterval: 1, 
+    // wallCheckInterval: 1, 
+    wallCheckInterval: 2,
     // 墙壁的关注时间
     focusTime: 100
 }

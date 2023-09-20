@@ -74,6 +74,7 @@ interface Creep {
     /**
      * @description 
      * Creep 工作状态是否应该切换
+     * @deprecated
      * @note 这个 work 是指 creep 是否在工作状态
      */
     shouldWork(): boolean

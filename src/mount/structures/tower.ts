@@ -214,7 +214,6 @@ export class TowerExtension extends StructureTower {
                     // container 由 harvester 专门维护
                     s.structureType != STRUCTURE_CONTAINER 
             })
-
             // 找到最近的受损建筑并更新缓存
             if (damagedStructures.length > 0) {
                 this.room._damagedStructure = this.pos.findClosestByRange(damagedStructures)

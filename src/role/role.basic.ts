@@ -60,7 +60,7 @@ const roleDigger: FuncDict = {
         const data = config.data as WorkerData
         const source = Game.getObjectById(data.sourceId) as Source
         creep.getEngryFrom(source)
-        
+
     },
     /**
      * 该 creep 需要重生
@@ -76,6 +76,7 @@ const roleDigger: FuncDict = {
 const roleCollector: FuncDict = {
 
     /** 
+     * @FIXME: 需要修改就位的逻辑，以后干脆放到配置里
      * @param {Creep} creep 
      */
     prepare: function (creep: Creep): void {
@@ -84,14 +85,21 @@ const roleCollector: FuncDict = {
         const data = config.data as WorkerData
         const source = Game.getObjectById(data.sourceId) as Source
 
-        const pos = source.pos.findInRange(FIND_STRUCTURES, 1,
-            { filter: { structureType: STRUCTURE_CONTAINER } })[0].pos;
-
-        
-        creep.memory.targetId = creep.findLink(pos)
-        creep.goTo(pos)
-        creep.memory.ready = (creep.pos.x==pos.x&&creep.pos.y==pos.y)
-
+        // const pos = source.pos.findInRange(FIND_STRUCTURES, 1,
+        //     { filter: { structureType: STRUCTURE_CONTAINER } })[0].pos;
+        const pos_structure = source.pos.findInRange(FIND_STRUCTURES, 1,
+            { filter: { structureType: STRUCTURE_RAMPART } })[0]
+        let pos = source.pos
+        if (!creep.memory.targetId) creep.memory.targetId = creep.findLink(pos)
+        if (pos_structure) {
+            pos = pos_structure.pos
+            creep.goTo(pos)
+            creep.memory.ready = (creep.pos.x == pos.x && creep.pos.y == pos.y)
+        }
+        else {
+            creep.goTo(pos, 1)
+            creep.memory.ready = (creep.getEngryFrom(source) == 0)
+        }
     },
 
     /** 
@@ -101,13 +109,13 @@ const roleCollector: FuncDict = {
         const config = Memory.creepConfigs[creep.name]
         const data = config.data as WorkerData
         const source = Game.getObjectById(data.sourceId) as Source
-        if(creep.memory.targetId==null){
+        if (creep.memory.targetId == null) {
             creep.getEngryFrom(source)
         }
-        else{
+        else {
             if (creep.shouldWork()) {
                 creep.transferTo(Game.getObjectById(creep.memory.targetId) as Structure, RESOURCE_ENERGY)
-                
+
             }
             else {
                 creep.getEngryFrom(source)
@@ -163,7 +171,7 @@ const roleUpgrader: FuncDict = {
     prepare: function (creep: Creep): void {
         // 这里的逻辑要更改，不能直接写死坐标
         creep.goTo(creep.room.getPositionAt(32, 22))
-        creep.memory.ready = (creep.pos.x==32&&creep.pos.y==22)
+        creep.memory.ready = (creep.pos.x == 32 && creep.pos.y == 22)
         creep.memory.working = false
     },
 

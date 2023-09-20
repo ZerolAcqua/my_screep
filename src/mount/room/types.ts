@@ -30,6 +30,9 @@ interface RoomMemory {
     // 房间的孵化队列
     spawnList: string[]
 
+    // 中央集群的资源转移任务队列
+    centerTransferTasks: ITransferTask[]
+
     // 房间物流任务队列
     transferTasks: RoomTransferTasks[]
 
@@ -192,6 +195,14 @@ interface Room {
     // 房间 creep 孵化 api
     hasSpawnTask(taskName: string): boolean
     hangSpawnTask(): void 
+
+    // 中央物流 api
+    addCenterTask(task: ITransferTask, priority?: number): number
+    hasCenterTask(submit: CenterStructures | number): boolean
+    hangCenterTask(): number
+    handleCenterTask(transferAmount: number): void
+    getCenterTask(): ITransferTask | null
+    deleteCurrentCenterTask(): void
 
     // 房间物流 api
     addRoomTransferTask(task: RoomTransferTasks, priority?: number): number
