@@ -9,7 +9,10 @@ export const repairSetting = {
     // checkInterval: 8, 
     checkInterval: 5, 
     // 墙壁维修的检查间隔
-    // wallCheckInterval: 1, 
+    /**
+     * @deprecated
+     */
+    wallQuickCheckInterval: 1, 
     wallCheckInterval: 2,
     // 墙壁的关注时间
     focusTime: 100

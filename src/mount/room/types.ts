@@ -16,6 +16,13 @@ interface RoomMemory {
     factoryId?: string
     powerSpawnId?: string
 
+    /** 
+     *  @TODO: 能量是否充足
+     *  @deprecated 
+     */
+    energySufficient?: boolean
+
+
     // 当前被 repairer 或 tower 关注的墙
     focusWall: {
         id: string

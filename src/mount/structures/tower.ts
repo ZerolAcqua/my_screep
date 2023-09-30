@@ -11,19 +11,19 @@ export class TowerExtension extends StructureTower {
      */
     public work(): void {
         if (this.store[RESOURCE_ENERGY] < 10) return this.requireEnergy()
-        
+
         // 根据当前状态执行对应的逻辑
         switch (this.room.memory.defenseMode) {
             case 'defense': // 普通防御模式
                 this.defenseWork()
-            break
+                break
             case 'active': // 主动防御模式
                 this.activeWork()
-            break
+                break
             default: // 日常模式
-            case undefined: 
+            case undefined:
                 this.dailyWork()
-            break
+                break
         }
     }
 
@@ -49,7 +49,7 @@ export class TowerExtension extends StructureTower {
         const enemys = this.findEnemy()
 
         // 没有敌人了就返回日常模式
-        if (enemys.length <= 0){
+        if (enemys.length <= 0) {
             // this.log('威胁解除，返回日常模式')
             delete this.room.memory.defenseMode
             return
@@ -137,7 +137,7 @@ export class TowerExtension extends StructureTower {
     //  */
     // private wallCheck(): void {
     //     const logs = this.room.getEventLog()
-        
+
     //     for (const log of logs) {
     //         // 墙壁或 ram 被摧毁
     //         if (log.event === EVENT_OBJECT_DESTROYED) {
@@ -158,7 +158,7 @@ export class TowerExtension extends StructureTower {
     //             if (target instanceof StructureRampart || target instanceof StructureWall) {
     //                 // 设为焦点墙体
     //                 this.room._importantWall = target
-                    
+
     //                 const repairCreepName = `${this.room.name} repair`
     //                 if (creepApi.has(`${repairCreepName} 1`)) break
 
@@ -212,7 +212,7 @@ export class TowerExtension extends StructureTower {
                     s.structureType != STRUCTURE_RAMPART &&
                     s.structureType != STRUCTURE_WALL &&
                     // container 由 harvester 专门维护
-                    s.structureType != STRUCTURE_CONTAINER 
+                    s.structureType != STRUCTURE_CONTAINER
             })
             // 找到最近的受损建筑并更新缓存
             if (damagedStructures.length > 0) {
@@ -223,7 +223,7 @@ export class TowerExtension extends StructureTower {
                 return false
             }
         }
-        
+
         // 代码能执行到这里就说明缓存肯定不为空
         // 如果是 1 说明都不需要维修
         if (this.room._damagedStructure != 1) {
@@ -245,7 +245,9 @@ export class TowerExtension extends StructureTower {
      */
     private commandFillWall(): boolean {
         // 还没到检查时间跳过
-        if (Game.time % repairSetting.wallCheckInterval) return false
+        let checkInterval = this.room.memory.energySufficient ? repairSetting.wallQuickCheckInterval : repairSetting.wallCheckInterval
+        if (Game.time % checkInterval) return false
+        
         // 如果有 tower 已经刷过墙了就跳过
         if (this.room._hasFillWall) return false
         // 能量不够跳过
@@ -257,7 +259,7 @@ export class TowerExtension extends StructureTower {
         if (!focusWall || (focusWall && Game.time >= focusWall.endTime)) {
             // 获取所有没填满的墙
             const walls = <(StructureWall | StructureRampart)[]>this.room.find(FIND_STRUCTURES, {
-                filter: s => (s.hits < s.hitsMax) && 
+                filter: s => (s.hits < s.hitsMax) &&
                     (s.structureType == STRUCTURE_WALL || s.structureType == STRUCTURE_RAMPART)
             })
             // 没有目标就啥都不干
@@ -294,14 +296,14 @@ export class TowerExtension extends StructureTower {
      * 
      * @param searchInterval 搜索间隔，每隔多久进行一次搜索
      */
-    private findEnemy(searchInterval: number = 1): (Creep|PowerCreep)[] {
+    private findEnemy(searchInterval: number = 1): (Creep | PowerCreep)[] {
         if (Game.time % searchInterval) return []
         // 有其他 tower 搜索好的缓存就直接返回
         if (this.room._enemys) return this.room._enemys
 
         // 搜索白名单之外的玩家
         this.room._enemys = this.room.find(FIND_HOSTILE_CREEPS, {
-            filter: whiteListFilter 
+            filter: whiteListFilter
         })
         if (this.room._enemys.length <= 0) this.room._enemys = this.room.find(FIND_HOSTILE_POWER_CREEPS, {
             filter: whiteListFilter
@@ -315,7 +317,7 @@ export class TowerExtension extends StructureTower {
      * 
      * @param enemys 目标合集
      */
-    private fire(enemys: (Creep|PowerCreep)[]): ScreepsReturnCode {
+    private fire(enemys: (Creep | PowerCreep)[]): ScreepsReturnCode {
         if (enemys.length <= 0) return ERR_NOT_FOUND
 
         return this.attack(this.pos.findClosestByRange(enemys))

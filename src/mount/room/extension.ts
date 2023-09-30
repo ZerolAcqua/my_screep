@@ -546,5 +546,13 @@ export class RoomExtension extends Room {
 
         // 统计房间内爬的数量
         Memory.stats.rooms[this.name].creepNum = this.find(FIND_MY_CREEPS).length
+
+        // 判断能量是否充足
+        if(this.storage.store.getUsedCapacity(RESOURCE_ENERGY) < 0.2 * this.storage.store.getCapacity()&&this.memory.energySufficient){
+            this.memory.energySufficient = false
+        }
+        else if(this.storage.store.getUsedCapacity(RESOURCE_ENERGY) > 0.8 * this.storage.store.getCapacity()&&!this.memory.energySufficient){
+            this.memory.energySufficient = true
+        }
     }
 }
