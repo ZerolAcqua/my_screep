@@ -58,66 +58,81 @@ const roleProcessor: FuncDict = {
             deathPrepare(creep, undefined)
             return
         }
-        // // TODO: 这样的逻辑肯定是不行的，需要改
-        if (Game.time % 40 < 5) {
-            if (creep.store.getUsedCapacity() != 0) {
-                // energy
-                creep.transferTo(creep.room.powerSpawn, RESOURCE_ENERGY) == OK
-                    || (creep.room.storage.store.getFreeCapacity() > 0.3 * creep.room.storage.store.getCapacity()
-                        && creep.transferTo(creep.room.storage, RESOURCE_ENERGY) == OK)
-                    // || creep.transferTo(creep.room.nuker, RESOURCE_ENERGY) == OK
-                    || creep.transferTo(creep.room.terminal, RESOURCE_ENERGY) == OK
-                    // Ghodium
-                    || creep.transferTo(creep.room.nuker, RESOURCE_GHODIUM) == OK
-                    || creep.transferTo(creep.room.storage, RESOURCE_GHODIUM) == OK
-                    // Power
-                    || creep.transferTo(creep.room.powerSpawn, RESOURCE_POWER) == OK
-                    || creep.transferTo(creep.room.storage, RESOURCE_POWER) == OK
 
-            }
-            else {
-                // energy
-                // creep.getEngryFrom(creep.room.centerLink) == OK
-                // || creep.getEngryFrom(creep.room.storage) == OK
-                // Ghodium
-                creep.withdraw(creep.room.terminal, RESOURCE_GHODIUM) == OK
-                    // Power
-                    || creep.withdraw(creep.room.terminal, RESOURCE_POWER) == OK
-                    || creep.withdraw(creep.room.storage, RESOURCE_POWER) == OK
-            }
+        if (creep.store.getUsedCapacity() != 0) {
+            // energy
+            (creep.room.storage.store.getUsedCapacity(RESOURCE_ENERGY) < 0.8 * creep.room.storage.store.getCapacity()
+                && creep.transferTo(creep.room.storage, RESOURCE_ENERGY) == OK)
+                || creep.transferTo(creep.room.terminal, RESOURCE_ENERGY) == OK
         }
         else {
-            if (creep.store.getUsedCapacity() != 0) {
-                // energy
-                (creep.room.storage.store.getUsedCapacity(RESOURCE_ENERGY) < 0.2 * creep.room.storage.store.getCapacity()
-                    && creep.transferTo(creep.room.storage, RESOURCE_ENERGY) == OK)
-                    || creep.transferTo(creep.room.powerSpawn, RESOURCE_ENERGY) == OK
-                    || (creep.room.storage.store.getFreeCapacity() > 0.2 * creep.room.storage.store.getCapacity()
-                        && creep.transferTo(creep.room.storage, RESOURCE_ENERGY) == OK)
-                    // || creep.transferTo(creep.room.nuker, RESOURCE_ENERGY) == OK
-                    || creep.transferTo(creep.room.terminal, RESOURCE_ENERGY) == OK
-    
-                    // Power
-                    || creep.transferTo(creep.room.storage, RESOURCE_POWER) == OK
+            // energy
+            creep.getEngryFrom(creep.room.centerLink) == OK
+                || (creep.room.terminal.store.getUsedCapacity(RESOURCE_ENERGY) > 0.5 * creep.room.terminal.store.getCapacity()
+                    && creep.getEngryFrom(creep.room.terminal) == OK)
 
-
-            }
-            else {
-                // energy
-                creep.getEngryFrom(creep.room.centerLink) == OK
-                    || (creep.room.storage.store.getUsedCapacity(RESOURCE_ENERGY) > 0.2 * creep.room.storage.store.getCapacity()
-                        && creep.getEngryFrom(creep.room.storage) == OK)
-                    || (creep.room.terminal.store.getUsedCapacity(RESOURCE_ENERGY) > 0.2 * creep.room.terminal.store.getCapacity()
-                        && creep.getEngryFrom(creep.room.terminal) == OK)
-                    // Power
-                    || creep.withdraw(creep.room.terminal, RESOURCE_POWER) == OK
-                    || creep.withdraw(creep.room.storage, RESOURCE_POWER) == OK
-
-
-
-
-            }
         }
+
+        // // // TODO: 这样的逻辑肯定是不行的，需要改
+        // if (Game.time % 40 < 5) {
+        //     if (creep.store.getUsedCapacity() != 0) {
+        //         // energy
+        //         creep.transferTo(creep.room.powerSpawn, RESOURCE_ENERGY) == OK
+        //             || (creep.room.storage.store.getFreeCapacity() > 0.2 * creep.room.storage.store.getCapacity()
+        //                 && creep.transferTo(creep.room.storage, RESOURCE_ENERGY) == OK)
+        //             // || creep.transferTo(creep.room.nuker, RESOURCE_ENERGY) == OK
+        //             || creep.transferTo(creep.room.terminal, RESOURCE_ENERGY) == OK
+        //             // Ghodium
+        //             || creep.transferTo(creep.room.nuker, RESOURCE_GHODIUM) == OK
+        //             || creep.transferTo(creep.room.storage, RESOURCE_GHODIUM) == OK
+        //             // Power
+        //             || creep.transferTo(creep.room.powerSpawn, RESOURCE_POWER) == OK
+        //             || creep.transferTo(creep.room.storage, RESOURCE_POWER) == OK
+
+        //     }
+        //     else {
+        //         // energy
+        //         // creep.getEngryFrom(creep.room.centerLink) == OK
+        //         // || creep.getEngryFrom(creep.room.storage) == OK
+        //         // Ghodium
+        //         creep.withdraw(creep.room.terminal, RESOURCE_GHODIUM) == OK
+        //             // Power
+        //             || creep.withdraw(creep.room.terminal, RESOURCE_POWER) == OK
+        //             || creep.withdraw(creep.room.storage, RESOURCE_POWER) == OK
+        //     }
+        // }
+        // else {
+        //     if (creep.store.getUsedCapacity() != 0) {
+        //         // energy
+        //         (creep.room.storage.store.getUsedCapacity(RESOURCE_ENERGY) < 0.2 * creep.room.storage.store.getCapacity()
+        //             && creep.transferTo(creep.room.storage, RESOURCE_ENERGY) == OK)
+        //             || creep.transferTo(creep.room.powerSpawn, RESOURCE_ENERGY) == OK
+        //             || (creep.room.storage.store.getFreeCapacity() > 0.2 * creep.room.storage.store.getCapacity()
+        //                 && creep.transferTo(creep.room.storage, RESOURCE_ENERGY) == OK)
+        //             // || creep.transferTo(creep.room.nuker, RESOURCE_ENERGY) == OK
+        //             || creep.transferTo(creep.room.terminal, RESOURCE_ENERGY) == OK
+
+        //             // Power
+        //             || creep.transferTo(creep.room.storage, RESOURCE_POWER) == OK
+
+
+        //     }
+        //     else {
+        //         // energy
+        //         creep.getEngryFrom(creep.room.centerLink) == OK
+        //             || (creep.room.storage.store.getUsedCapacity(RESOURCE_ENERGY) > 0.2 * creep.room.storage.store.getCapacity()
+        //                 && creep.getEngryFrom(creep.room.storage) == OK)
+        //             || (creep.room.terminal.store.getUsedCapacity(RESOURCE_ENERGY) > 0.2 * creep.room.terminal.store.getCapacity()
+        //                 && creep.getEngryFrom(creep.room.terminal) == OK)
+        //             // Power
+        //             || creep.withdraw(creep.room.terminal, RESOURCE_POWER) == OK
+        //             || creep.withdraw(creep.room.storage, RESOURCE_POWER) == OK
+
+
+
+
+        //     }
+        // }
 
 
 

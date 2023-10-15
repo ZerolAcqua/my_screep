@@ -551,7 +551,7 @@ export class RoomExtension extends Room {
         if(this.storage.store.getUsedCapacity(RESOURCE_ENERGY) < 0.2 * this.storage.store.getCapacity()&&this.memory.energySufficient){
             this.memory.energySufficient = false
         }
-        else if(this.storage.store.getUsedCapacity(RESOURCE_ENERGY) > 0.8 * this.storage.store.getCapacity()&&!this.memory.energySufficient){
+        else if(this.storage.store.getUsedCapacity(RESOURCE_ENERGY) > 0.7 * this.storage.store.getCapacity()&&!this.memory.energySufficient){
             this.memory.energySufficient = true
         }
     }
